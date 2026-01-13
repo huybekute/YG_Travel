@@ -1,5 +1,3 @@
 <template>
-    <div class="flex">
-        ab
-    </div>
+    â
 </template>

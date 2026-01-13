@@ -20,6 +20,7 @@ def preprocessText(text):
     word = [w for w in word if w not in stopWord]
     return ' '.join(word) if word else ""
 
+
 # doc data tu excel va xu ly
 def loadAndProcess(path):
     df = pd.read_excel(path)
@@ -27,3 +28,6 @@ def loadAndProcess(path):
     df['Mô tả sau xử lý'] = df['Mô tả'].apply(preprocessText)
     df = df[df['Mô tả sau xử lý'].str.strip() != ''].reset_index(drop=True)
     return df
+
+
+
