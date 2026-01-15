@@ -47,8 +47,8 @@
 
 <template>
   <div>
-    <div class="relative w-full min-h-screen overflow-hidden pt-10 ">
-      <video ref="videoRef" src="../../public/Home/HomeVideo.mp4" class="absolute w-full h-full object-cover" autoplay loop muted playsinline></video>
+    <div class="relative w-full h-[calc(100vh-theme(spacing.24))] overflow-hidden">
+      <video ref="videoRef" src="/Home/HomeVideo.mp4" class="absolute w-full h-full object-cover" autoplay loop muted playsinline></video>
       <transition name="">
         <h1 v-if="showTyping" class="absolute inset-0 z-10 flex items-center justify-center text-white text-4xl md:text-6xl 
         font-bold tracking-wide"><span class="inline-block text-left" style="width: 18ch" >{{ displayText }}</span></h1>

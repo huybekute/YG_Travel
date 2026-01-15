@@ -61,6 +61,29 @@ const router = createRouter({
           meta: { title: 'Quản lý tài khoản' }
         }
       ]
+    },
+    {
+      path: '/auth',
+      name: 'auth',
+      component: () => import('../views/Auth/Auth.vue'),
+      children : [
+        {
+          path: '',
+          redirect: '/auth/dang-nhap'
+        },
+        {
+          path: 'dang-nhap',
+          name: 'dang-nhap',
+          component: () => import('../views/Auth/Signin.vue'),
+          meta: { title : 'Đăng nhập'}
+        },
+        {
+          path: 'dang-ky',
+          name: 'dang-ky',
+          component: () => import('../views/Auth/Signup.vue'),
+          meta: { title: 'Đăng ký'}
+        }
+      ]
     }
   ],
 })
