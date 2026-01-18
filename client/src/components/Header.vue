@@ -1,12 +1,36 @@
 <script setup>
   import { ref, onMounted, onUnmounted, computed } from 'vue';
   import { useRoute } from 'vue-router';
+  import { useRouter } from 'vue-router';
+  import useAuthStore from '@/stores/authStore'
   
   const route = useRoute()
+  const router = useRouter()
+  const authStore = useAuthStore()
 
+  const dangXuat = () => {
+    authStore.logout();
+    router.push('/');
+  }
+
+
+  // hieu ung cuon thanh header
   const isScrolled = ref(false);
+  const isChanging = ref(false);
+
   const handleScroll = () => {
-    isScrolled.value = window.scrollY > 20; 
+    const scrollPos = window.scrollY;
+    if(scrollPos > 50 && !isScrolled.value){
+      isChanging.value = true;
+      setTimeout(() => {
+        isScrolled.value = true;
+        isChanging.value = false;
+      }, 500);
+    }
+    else if (scrollPos <= 20 && isScrolled.value){
+      isScrolled.value = false;
+      isChanging.value = false;
+    }
   };
   onMounted(() => {
     window.addEventListener('scroll', handleScroll);
@@ -15,22 +39,24 @@
   onUnmounted(() => {
     window.removeEventListener('scroll', handleScroll);
   });
-  const isAdminPage = computed(() => route.path.startsWith('/admin'));
 
+  const isAdminPage = computed(() => route.path.startsWith('/admin'));
   const isHomePage = computed(() => route.path === '/')
+
+
 
 </script>
 
 <template>
-    <div class="flex sticky w-full top-0 z-50" v-if="!isAdminPage" :class="isHomePage ? 'bg-[#0f1c17]' : 'bg-white shadow-md'">
-        <div class="flex items-center gap-5 justify-between w-full pr-20 transition-all duration-300" 
-        :class="isScrolled ? 'h-16 py-3' : 'py-10 h-24'">
+    <div v-if="!isAdminPage" class="sticky w-full top-0 z-50 transition-all duration-700 ease-in-out" 
+      :class="[isHomePage ? 'bg-[#0f1c17]' : 'bg-white shadow-md', isChanging ? 'opacity-0 -translate-y-full' : 'opacity-100 translate-y-0']">
+        <div class="flex items-center gap-5 justify-between w-full pr-20 transition-all duration-700" 
+        :class="isScrolled ? 'h-16 py-5' : 'py-10 h-24'">
             <div>
                 <RouterLink to="/">
                   <img v-if="isHomePage" src="/Home/LogoHome.png" alt="YG Travel" class="w-40 pl-5">
                   <img v-else src="/Logo.jpg" alt="YG Travel" class="w-40 pl-5 ">
                 </RouterLink>
-                
             </div>
             <div class="flex items-center gap-5 text-lg  rounded-full px-1 py-1 transition-colors"  
             :class="isHomePage ? 'bg-[#1c2b25] text-gray-300 hover:text-white' : 'bg-[#f7f7f5] border border-gray-200'">
@@ -49,15 +75,18 @@
                   <RouterLink to="/auth" class="flex items-center justify-center w-10 h-10 " :class="isHomePage ? 'text-white': 'text-black'">
                     <i class="fa-solid fa-user pr-1 shake-icon text-2xl"></i> <span class="pt-3">▾</span></RouterLink>
                     <div class="absolute flex-col hidden group-hover:flex group-hover:flex-col bg-white 
-                    items-center shadow-lg w-40 rounded-md left-1/2 -translate-x-1/2 z-10 gap-2">
-                        <RouterLink to ="/auth/dang-nhap" class="">Đăng nhập</RouterLink>
-                        <RouterLink to ="/auth/dang-ky" class="" >Đăng ký</RouterLink>
-                        <!-- <RouterLink to ="" class="p-2 my-4 rounded-md w-4/5 text-center bg-blue-600 
-                        hover:bg-blue-700 text-white font-medium">Thông tin tài khoản</RouterLink>
-                        <RouterLink to ="" class="p-2 mb-4 rounded-md w-4/5 text-center bg-blue-600 
-                        hover:bg-blue-700 text-white font-medium" >Bảng điều khiển</RouterLink>
-                        <button class="p-2 mb-4 rounded-md w-4/5 text-center bg-blue-600 
-                        hover:bg-blue-700 text-white font-medium">Đăng xuất</button> -->
+                    items-center shadow-lg w-46 rounded-md left-1/2 -translate-x-1/2 z-10">
+                        <RouterLink to="/auth/dang-nhap" class="flex items-center justify-center w-full px-4 py-3 text-gray-700 
+                        hover:text-green-600 transition-colors hover:bg-green-100" v-if="!useAuthStore.isLogIn"><span class="text-md font-medium">Đăng nhập</span></RouterLink>
+                        <RouterLink to="/auth/dang-ky" class="flex items-center hover:bg-green-100 justify-center w-full  px-4 py-3 text-gray-700 
+                        hover:text-green-600 transition-colors " v-if="!useAuthStore.isLogIn"><span class="text-md font-medium">Đăng ký</span></RouterLink>
+                        <RouterLink to="/auth/dang-ky" class="flex items-center hover:bg-green-100 justify-center w-full  px-4 py-3 text-gray-700 
+                        hover:text-green-600 transition-colors" v-if="useAuthStore.isLogIn" ><span class="text-md font-medium">Thông tin tài khoản</span></RouterLink>
+                        <RouterLink to="/auth/dang-ky" class="flex items-center hover:bg-green-100 justify-center w-full  px-4 py-3 text-gray-700 
+                        hover:text-green-600 transition-colors" v-if="useAuthStore.isLogIn"><span class="text-md font-medium">Bảng điều khiển</span></RouterLink>
+                        <button to="/auth/dang-ky" class="flex items-center hover:bg-green-100 justify-center w-full  px-4 py-3 text-gray-700 
+                        hover:text-green-600 transition-colors" v-if="useAuthStore.isLogIn"><span class="text-md font-medium" @click="dangXuat">Đăng xuất</span></button>
+
                     </div>
             </div>
         </div>

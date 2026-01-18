@@ -86,6 +86,9 @@ const router = createRouter({
       ]
     }
   ],
+  scrollBehavior(to, from, savePosition){
+    return {top: 0}
+  }
 })
 
 //set title

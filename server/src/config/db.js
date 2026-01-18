@@ -20,5 +20,4 @@ connection.connect(function (err){
     }
 })
 
-console.log(1)
 export default connection;

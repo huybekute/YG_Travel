@@ -12,7 +12,7 @@ const verifyToken = (req, res, next) => {
     jwt.verify(token, process.env.TOKEN, (err, decoded) => {
         if(err) return res.status(403).json({message : "Token không hợp lệ hoặc hết hạn"});
         req.user = decoded;
-        next();
+        return next();
     });
 }
 

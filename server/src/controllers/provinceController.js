@@ -15,7 +15,7 @@ const addProvince = async (req, res) => {
             if(err.code === 'ER_DUP_ENTRY'){
                 return res.status(409).json({message : "Tỉnh đã tồn tại"})
             }
-            return res.status(500).json({message : err.message})
+            return res.status(500).json({message : "Lỗi DB"})
         }
         res.status(201).json({
             message : "Thêm tỉnh thành công",
