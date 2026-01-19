@@ -3,13 +3,13 @@ import { defineStore } from "pinia";
 
 const useAuthStore = defineStore('user', {
     state: () => ({
-        username: '',
+        username: localStorage.getItem('username') || '',
         email: '',
-        userID: '',
-        token: '',
-        role: '',
-        isLoggedIn: false
-    }),
+        userID: localStorage.getItem('userID') || '',
+        token: localStorage.getItem('token') || '',
+        role: localStorage.getItem('role') || '',
+        isLoggedIn: !!localStorage.getItem('token')
+    }),   
     actions: {
         login(data) {
             this.username = data.username;
@@ -24,16 +24,20 @@ const useAuthStore = defineStore('user', {
             localStorage.setItem('username', data.username)
         },
         logout(){
-            this.$reset()
-            localStorage.removeItem('token')
-            localStorage.removeItem('role')
-            localStorage.removeItem('userID')
-            localStorage.removeItem('username')
+            // this.$reset()
+            this.username = '';
+            this.email = '';
+            this.userID = '';
+            this.token = '';
+            this.role = '';
+            this.isLoggedIn = false;
+            localStorage.clear();
+            // this.$reset();
         }
     },
     getters: {
         isLogIn : (state) => !!state.token,
-        isAdmin: (state) => state.role === 'admin'
+        isAdmin: (state) => state.role === "ADMIN"
     },
 });
 

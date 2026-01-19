@@ -7,8 +7,8 @@ const router = express.Router()
 router.get("/:id", locationController.getLocation);
 router.get("/", locationController.getAllLocations);
 
-router.post("/", checkRole("admin"), locationController.addLocation);
-router.delete("/:id",checkRole("admin"), locationController.deleteLocation);
-router.put("/:id", checkRole("admin"), locationController.updateLocation);
+router.post("/", checkRole("ADMIN"), locationController.addLocation);
+router.delete("/:id",checkRole("ADMIN"), locationController.deleteLocation);
+router.put("/:id", checkRole("ADMIN"), locationController.updateLocation);
 
 export default router;

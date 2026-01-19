@@ -10,7 +10,7 @@
 
   const dangXuat = () => {
     authStore.logout();
-    router.push('/');
+    router.push("/");
   }
 
 
@@ -77,16 +77,16 @@
                     <div class="absolute flex-col hidden group-hover:flex group-hover:flex-col bg-white 
                     items-center shadow-lg w-46 rounded-md left-1/2 -translate-x-1/2 z-10">
                         <RouterLink to="/auth/dang-nhap" class="flex items-center justify-center w-full px-4 py-3 text-gray-700 
-                        hover:text-green-600 transition-colors hover:bg-green-100" v-if="!useAuthStore.isLogIn"><span class="text-md font-medium">Đăng nhập</span></RouterLink>
+                        hover:text-green-600 transition-colors hover:bg-green-100" v-if="!authStore.isLogIn"><span class="text-md font-medium">Đăng nhập</span></RouterLink>
                         <RouterLink to="/auth/dang-ky" class="flex items-center hover:bg-green-100 justify-center w-full  px-4 py-3 text-gray-700 
-                        hover:text-green-600 transition-colors " v-if="!useAuthStore.isLogIn"><span class="text-md font-medium">Đăng ký</span></RouterLink>
+                        hover:text-green-600 transition-colors " v-if="!authStore.isLogIn"><span class="text-md font-medium">Đăng ký</span></RouterLink>
                         <RouterLink to="/auth/dang-ky" class="flex items-center hover:bg-green-100 justify-center w-full  px-4 py-3 text-gray-700 
-                        hover:text-green-600 transition-colors" v-if="useAuthStore.isLogIn" ><span class="text-md font-medium">Thông tin tài khoản</span></RouterLink>
-                        <RouterLink to="/auth/dang-ky" class="flex items-center hover:bg-green-100 justify-center w-full  px-4 py-3 text-gray-700 
-                        hover:text-green-600 transition-colors" v-if="useAuthStore.isLogIn"><span class="text-md font-medium">Bảng điều khiển</span></RouterLink>
+                        hover:text-green-600 transition-colors" v-if="authStore.isLogIn" ><span class="text-md font-medium">Thông tin tài khoản</span></RouterLink>
+                        <RouterLink to="/admin" class="flex items-center hover:bg-green-100 justify-center w-full  px-4 py-3 text-gray-700 
+                        hover:text-green-600 transition-colors" v-if="authStore.isLogIn && authStore.isAdmin"><span class="text-md font-medium">Bảng điều khiển</span></RouterLink>
                         <button to="/auth/dang-ky" class="flex items-center hover:bg-green-100 justify-center w-full  px-4 py-3 text-gray-700 
-                        hover:text-green-600 transition-colors" v-if="useAuthStore.isLogIn"><span class="text-md font-medium" @click="dangXuat">Đăng xuất</span></button>
-
+                        hover:text-green-600 transition-colors cursor-pointer" v-if="authStore.isLogIn"><span class="text-md font-medium" @click="dangXuat">Đăng xuất</span></button>
+                      
                     </div>
             </div>
         </div>

@@ -1,17 +1,22 @@
 <script setup>
     import UserCard from '@/components/admin/UserCard.vue';
     import apiService from '@/services/APIService';
-    import { ref, onMounted} from 'vue';
+    import { ref, onMounted, computed } from 'vue';
 
     const users = ref([]);
+    const onlyUser = computed(() => {
+        return users.value.filter(u => u?.role === "USER");
+    })
+
+    
 
     onMounted(async () => {
         try{
             const res = await apiService.get("/user");
-            users.value  = res.data;
+            users.value  = res.data || res;
         }
         catch(err){
-            console("Lỗi load user", err);
+            console.error("Lỗi load user", err);
         }
     })
     
@@ -25,7 +30,7 @@
 
         <!-- List user -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            <UserCard v-for="user in users" :key="user.id" :user="user"/>
+            <UserCard v-for="user in onlyUser" :key="user.userID" :user="user"/>
         </div>
     </div>
     

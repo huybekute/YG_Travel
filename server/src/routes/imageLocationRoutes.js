@@ -8,7 +8,7 @@ router.get("/location/:idLocation", imageLocationController.getImageByLocation);
 router.get("/", imageLocationController.getAllImages);
 router.get("/:id", imageLocationController.getImage);
 
-router.post("/", checkRole("admin"), imageLocationController.addImage);
-router.delete("/:id",checkRole("admin"), imageLocationController.deleteImage);
-router.put("/:id", checkRole("admin"), imageLocationController.updateImage);
+router.post("/", checkRole("ADMIN"), imageLocationController.addImage);
+router.delete("/:id",checkRole("ADMIN"), imageLocationController.deleteImage);
+router.put("/:id", checkRole("ADMIN"), imageLocationController.updateImage);
 export default router;

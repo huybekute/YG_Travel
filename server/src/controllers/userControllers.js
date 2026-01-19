@@ -13,18 +13,26 @@ const signup = async (req, res) => {
         //ma hoa mk
         const salt = await bcrypt.genSalt(10);
         const hashPass = await bcrypt.hash(password, salt);
-
-        const sql = "INSERT INTO users (username, email, password) VALUES (?, ?, ?)";
-        connection.query(sql, [username, email, hashPass], async (err, result) => {
+        const userRole = "USER";
+        const sql = "INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)";
+        connection.query(sql, [username, email, hashPass, userRole], async (err, result) => {
             if(err){
                 if(err.code === 'ER_DUP_ENTRY'){
                     return res.status(409).json({message: "username hoặc email đã tồn tại"});
                 }
                 return res.status(500).json({message: err.message})
             }
+            const token = jwt.sign(
+                { id: result.insertId, role: userRole },
+                process.env.TOKEN,
+                { expiresIn: "1h" }
+            )
             res.status(201).json({
-                message: "Tạo tk thành công",
-                userID: result.insertId
+                token,
+                userID: result.insertId,
+                username,
+                email,
+                role: userRole
             });
         })
 
@@ -43,7 +51,7 @@ const createUser = async (req, res) => {
     try {
         const salt = await bcrypt.genSalt(10);
         const hashPass = await bcrypt.hash(password, salt);
-        const userRole = role || "user";
+        const userRole = role || "USER";
         const sql = "INSERT INTO users (username, email, password, role) VALUES (?, ?, ? ,?)";
         connection.query(sql, [username, email, hashPass, userRole], async (err, result) => {
             if(err) {
@@ -55,7 +63,6 @@ const createUser = async (req, res) => {
             res.status(200).json({
                 message: "Tạo tk thành công",
                 userID : result.insertId,
-                role: result.role
             });
         })
     }
@@ -75,7 +82,7 @@ const login = async (req, res) => {
         connection.query(sql, [username, username], async (err, result) => {
             if(err) return res.status(500).json({message: "Lỗi db"})
 
-            if(result.length === 0) return res.status(404).json({message: "username ko tồn tại"});
+            if(result.length === 0) return res.status(404).json({message: "Username không tồn tại"});
 
             const user = result[0];
             const isMatch = await bcrypt.compare(password, user.password);
@@ -91,12 +98,10 @@ const login = async (req, res) => {
             res.status(200).json({
                 message: "Đăng nhập thành công",
                 token: token,
-                user : {
-                    userID: user.userID,
-                    username: user.username,
-                    email: user.email,
-                    role: user.role
-                }
+                userID: user.userID,
+                username: user.username,
+                email: user.email,
+                role: user.role
             });
         });
 
@@ -106,39 +111,39 @@ const login = async (req, res) => {
     }
 }
 
-const getUser = async (req, res) => {
+const getUser = (req, res) => {
     const { id } = req.params;
     const sql = "SELECT userID, username, email, fullname, phoneNumber, address, created_at, updated_at FROM users WHERE userID = ?";
-    connection.query(sql, [id], async (err, result) => {
+    connection.query(sql, [id], (err, result) => {
         if(err) return res.status(500).json({message: "Lỗi DB"});
         if(result.length === 0) return res.status(404).json({message: "Không tìm thấy user với id này"});
         res.status(200).json(result[0])
     });
 }
 
-const updateUser = async (req, res) => {
+const updateUser = (req, res) => {
     const {id } = req.params;
     const { fullname, phoneNumber, address } = req.body;
     const sql = "UPDATE users SET fullname = ?, phoneNumber = ?, address = ? WHERE userID = ?"
-    connection.query(sql, [fullname, phoneNumber, address, id], async (err, result) => {
+    connection.query(sql, [fullname, phoneNumber, address, id], (err, result) => {
         if(err) return res.status(500).json({message: "Lỗi cập nhật"});
         if(result.affectedRows === 0) return res.status(404).json({message: "Cập nhật không thành công"});
         res.status(200).json({message: "Cập nhật thông tin thành công"})
     })
 }
 
-const getAllUsers = async (req, res) => {
-    const sql = "SELECT userID, username, email, fullname, phoneNumber, address, created_at, updated_at FROM users";
+const getAllUsers = (req, res) => {
+    const sql = "SELECT userID, username, email, fullname, role, phoneNumber, address, created_at, updated_at FROM users";
     connection.query(sql, (err, result) => {
         if(err) return res.status(500).json({message:"Lỗi truy vấn"});
         res.status(200).json(result);
     })
 }
 
-const deleteUser = async (req, res) => {
+const deleteUser = (req, res) => {
     const { id } = req.params;
     const sql = "DELETE FROM users WHERE userID = ?";
-    connection.query(sql, [id], async (err, result) => { 
+    connection.query(sql, [id], (err, result) => { 
         if(err){
             if(err.code === 'ER_ROW_IS_REFERENCED_2'){
                 return res.status(409).json({message : "Không thể người dùng này vì họ có các mục yêu thích, hãy clear trước"})

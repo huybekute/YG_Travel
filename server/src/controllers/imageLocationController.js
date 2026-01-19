@@ -1,7 +1,7 @@
 import connection from "../config/db.js"
 
 //thêm anh
-const addImage = async (req, res) => {
+const addImage = (req, res) => {
     let { locationID, imageURL, description } = req.body;
     if( !imageURL || !locationID){
         return res.status(400).json({message : "Vui lòng nhập đầy đủ thông tin"})
@@ -27,7 +27,7 @@ const addImage = async (req, res) => {
 
 // xoa ảnh
 
-const deleteImage = async (req, res) => {
+const deleteImage = (req, res) => {
     const { id } = req.params;
     const sql = "DELETE FROM image_locations WHERE imageID = ?"
     connection.query(sql, [id], (err, result) => {
@@ -44,7 +44,7 @@ const deleteImage = async (req, res) => {
 
 
 //lay anh
-const getImage = async (req, res) => {
+const getImage = (req, res) => {
     const { id } = req.params;
     const sql = "SELECT * FROM image_locations WHERE imageID = ?";
     connection.query(sql, [id], (err, result) => {
@@ -60,7 +60,7 @@ const getImage = async (req, res) => {
 
 //lay tat ca ảnh
 
-const getAllImages = async (req, res) => {
+const getAllImages = (req, res) => {
     const sql = "SELECT * FROM image_locations"
     connection.query(sql, (err, result) => {
         if(err){
@@ -71,7 +71,7 @@ const getAllImages = async (req, res) => {
 }
 
 //cap nhat ảnh
-const updateImage = async (req, res) => {
+const updateImage = (req, res) => {
     const { id } = req.params;
     const { locationID, imageURL, description } = req.body;
     if (!imageURL || !imageURL.trim() || !locationID) {
@@ -96,7 +96,7 @@ const updateImage = async (req, res) => {
 }
 
 //lay ds anh cua 1 location
-const getImageByLocation = async(req, res) => {
+const getImageByLocation = (req, res) => {
     const { locationID } = req.params;
     const sql = "SELECT * FROM image_locations WHERE locationID = ?";
     connection.query(sql, [locationID], (err, result) => {

@@ -5,6 +5,7 @@
           required: true
         }
     });
+
 </script>
 
 <template>
@@ -22,9 +23,9 @@
             <p class="flex items-center gap-1.5"><span class="text-gray-500 text-xs"><i class="fa-solid fa-phone"></i></span> <span 
                 class="font-bold text-gray-700">Phone :</span> {{ user.phone || 'Đang cập nhật' }}</p>
         </div>
-        <div class="ml-10">
+        <!-- <div class="ml-10">
           <img src="/avtUser.jpg" class="w-28 h-28 rounded-full border-2 border-gray-300 object-cover shadow-sm"/>
-        </div>
+        </div> -->
       </div>
       <div class="flex justify-end gap-2 mt-4">        
         <button class="flex items-center gap-1 bg-[#e74c3c] hover:bg-[#c0392b] text-white px-3 py-1.5 rounded text-[14px] 

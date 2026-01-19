@@ -1,3 +1,4 @@
+import useAuthStore from '@/stores/authStore'
 import { createRouter, createWebHistory } from 'vue-router'
 
 const router = createRouter({
@@ -37,6 +38,7 @@ const router = createRouter({
       path: '/admin',
       name: 'admin',
       component: () => import('../views/Admin/admin.vue'),
+      meta: { requiresAdmin: true },
       children : [
         {
           path: '',
@@ -52,7 +54,21 @@ const router = createRouter({
           path: 'content-management',
           name: 'content-management',
           component: () => import('../views/Admin/ContentManagement.vue'),
-          meta: { title: 'Quản lý nội dung' }
+          redirect: '/admin/content-management/list',
+          children: [
+            {
+              path: 'add',
+              name: 'add',
+              component: () =>  import('../views/Admin/addContent.vue'),
+              meta: {title: 'Thêm nội dung'}
+            },
+            {
+              path: 'list',
+              name: 'list',
+              component: () =>  import('../views/Admin/ListContent.vue'),
+              meta: {title: 'Danh sách nội dung'}
+            },
+          ]
         },
         {
           path: 'user-management',
@@ -94,6 +110,21 @@ const router = createRouter({
 //set title
 router.afterEach((to) => {
   document.title = to.meta.title || 'YG Travel'
+})
+
+router.beforeEach((to, from, next) => {
+  const authStore = useAuthStore();
+  if(to.meta.requiresAdmin){
+    if(authStore.isLogIn && authStore.isAdmin){
+      next();
+    }
+    else{
+      next("/");
+    }
+  }
+  else{
+    next();
+  }
 })
 
 export default router

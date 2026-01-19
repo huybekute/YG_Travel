@@ -1,7 +1,7 @@
 import connection from "../config/db.js"
 
 // them dia diem
-const addLocation = async (req, res) => {
+const addLocation = (req, res) => {
     let { locationName, provinceID, categoryID, description } = req.body;
     if( !locationName  || !locationName.trim() ){
         return res.status(400).json({message : "Vui lòng nhập đầy đủ thông tin"})
@@ -26,7 +26,7 @@ const addLocation = async (req, res) => {
 
 // xoa dia diem
 
-const deleteLocation = async (req, res) => {
+const deleteLocation = (req, res) => {
     const { id } = req.params;
     const sql = "DELETE FROM locations WHERE locationID = ?"
     connection.query(sql, [id], (err, result) => {
@@ -43,7 +43,7 @@ const deleteLocation = async (req, res) => {
 
 
 //lay dia diem
-const getLocation = async (req, res) => {
+const getLocation = (req, res) => {
     const { id } = req.params;
     const sql = "SELECT * FROM locations WHERE locationID = ?";
     connection.query(sql, [id], (err, result) => {
@@ -59,7 +59,7 @@ const getLocation = async (req, res) => {
 
 //lay tat ca dia diem
 
-const getAllLocations = async (req, res) => {
+const getAllLocations = (req, res) => {
     const sql = "SELECT L.locationID, L.name, P.name AS provinceName, C.name AS categoryName, L.description FROM locations L JOIN provinces P ON L.provinceID = P.provinceID JOIN categories C ON L.categoryID = C.categoryID";
     connection.query(sql, (err, result) => {
         if(err){
@@ -71,7 +71,7 @@ const getAllLocations = async (req, res) => {
 
 //cap nhat dia diem
 
-const updateLocation = async (req, res) => {
+const updateLocation = (req, res) => {
     const { id } = req.params;
     let { name, provinceID, categoryID, description } = req.body;
     if(!name || !name.trim()){

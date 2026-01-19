@@ -1,7 +1,7 @@
 import connection from "../config/db.js"
 
 // them loai
-const addCategory = async (req, res) => {
+const addCategory = (req, res) => {
     let { categoryName, description } = req.body;
     if( !categoryName  || !categoryName.trim() ){
         return res.status(400).json({message : "Vui lòng nhập đầy đủ thông tín"})
@@ -26,7 +26,7 @@ const addCategory = async (req, res) => {
 
 // xoa loai
 
-const deleteCategory = async (req, res) => {
+const deleteCategory = (req, res) => {
     const { id } = req.params;
     const sql = "DELETE FROM categories WHERE categoryID = ?"
     connection.query(sql, [id], (err, result) => {
@@ -43,7 +43,7 @@ const deleteCategory = async (req, res) => {
 
 
 //lay the loai
-const getCategory = async (req, res) => {
+const getCategory = (req, res) => {
     const { id } = req.params;
     const sql = "SELECT * FROM categories WHERE categoryID = ?";
     connection.query(sql, [id], (err, result) => {
@@ -59,7 +59,7 @@ const getCategory = async (req, res) => {
 
 //lay tat ca loai
 
-const getAllCategories = async (req, res) => {
+const getAllCategories = (req, res) => {
     const sql = "SELECT * FROM categories";
     connection.query(sql, (err, result) => {
         if(err){
@@ -71,7 +71,7 @@ const getAllCategories = async (req, res) => {
 
 //cap nhat loai
 
-const updateCategory = async (req, res) => {
+const updateCategory = (req, res) => {
     const { id } = req.params;
     let { name, description } = req.body;
     if(!name || !name.trim()){

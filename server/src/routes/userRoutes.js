@@ -8,10 +8,10 @@ const router = express.Router()
 router.post('/signup', userControllers.signup); 
 router.post('/login', userControllers.login);
 
-router.get('/', verifyToken, checkRole("admin") ,userControllers.getAllUsers);
+router.get('/', verifyToken, checkRole("ADMIN") ,userControllers.getAllUsers);
 router.get('/:id', verifyToken, userControllers.getUser);
 router.put('/:id', verifyToken, userControllers.updateUser);
-router.delete('/:id', verifyToken, checkRole("admin"),userControllers.deleteUser);
-router.post('/createUser', verifyToken, checkRole("admin"), userControllers.createUser);
+router.delete('/:id', verifyToken, checkRole("ADMIN"),userControllers.deleteUser);
+router.post('/createUser', verifyToken, checkRole("ADMIN"), userControllers.createUser);
 
 export default router

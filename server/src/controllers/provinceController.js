@@ -1,7 +1,7 @@
 import connection from "../config/db.js";
 
 // them tinh
-const addProvince = async (req, res) => {
+const addProvince = (req, res) => {
     let { provinceName, description } = req.body;
 
     if(!provinceName || !provinceName.trim()){
@@ -25,7 +25,7 @@ const addProvince = async (req, res) => {
 }
 
 // xoa tinh
-const deleteProvince = async (req, res) => {
+const deleteProvince = (req, res) => {
     const { id } = req.params;
     const sql = "DELETE FROM provinces WHERE provinceID = ?";
     connection.query(sql, [id], (err, result) => {
@@ -41,7 +41,7 @@ const deleteProvince = async (req, res) => {
 }
 
 // lay tinh
-const getProvince = async(req, res) => {
+const getProvince = (req, res) => {
     const { id } = req.params;
     const sql = "SELECT * FROM provinces WHERE provinceID = ?";
     connection.query(sql, [id], (err, result) => {
@@ -57,7 +57,7 @@ const getProvince = async(req, res) => {
 
 //lay ds tinh
 
-const getAllProvinces = async (req, res) => {
+const getAllProvinces = (req, res) => {
     const sql = "SELECT * FROM provinces ORDER BY name ASC";
     connection.query(sql, (err, result) => {
         if(err) {
@@ -69,7 +69,7 @@ const getAllProvinces = async (req, res) => {
 
 //cap nhat tinh
 
-const updateProvince = async (req, res) => {
+const updateProvince = (req, res) => {
     const { id } = req.params;
     let { name, description } = req.body;
     if(!name || !name.trim()){
