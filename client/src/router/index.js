@@ -1,3 +1,4 @@
+import apiService from '@/services/APIService'
 import useAuthStore from '@/stores/authStore'
 import { createRouter, createWebHistory } from 'vue-router'
 
@@ -109,7 +110,19 @@ const router = createRouter({
 
 //set title
 router.afterEach((to) => {
-  document.title = to.meta.title || 'YG Travel'
+  document.title = to.meta.title || 'YG Travel';
+
+  //ghi log so luot truy cap
+  if(!to.path.startsWith("/admin")){
+
+    const userID = localStorage.getItem('userID') || null;
+    apiService.post('/access-log', {
+      userID: userID,
+      pageURL: to.fullPath
+    }).catch(err => {
+      console.warn("Lỗi ghi log", err.message);
+    })
+  }
 })
 
 router.beforeEach((to, from, next) => {

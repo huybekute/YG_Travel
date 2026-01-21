@@ -1,11 +1,32 @@
 <script setup>
-    defineProps({
+  import apiService from '@/services/APIService';
+
+    const props = defineProps({
         user: {
           type: Object,
           required: true
         }
     });
 
+    const emit = defineEmits(['user-delete']);
+
+    const deleteUser = async () => {
+      const res = await apiService.delete(`/user/${props.user.userID}` );
+      if(!confirm("Bạn có chắc chắn muốn xóa người dùng này"));
+      try{
+        if(res.status === 200 ){
+          emit('user-delete', props.user.userID);
+          window.location.reload();
+        }
+      }
+      catch(error){
+        console.log("Lỗi: " + error);
+        alert("Không thể xóa người dùng này")
+
+      }
+    }
+
+    
 </script>
 
 <template>
@@ -29,7 +50,7 @@
       </div>
       <div class="flex justify-end gap-2 mt-4">        
         <button class="flex items-center gap-1 bg-[#e74c3c] hover:bg-[#c0392b] text-white px-3 py-1.5 rounded text-[14px] 
-        transition-colors shadow-sm">Xóa</button>
+        transition-colors shadow-sm" @click="deleteUser"><i class="fa-solid fa-trash mr-1"></i>Xóa</button>
       </div>
     </div>
   </div>

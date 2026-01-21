@@ -33,11 +33,11 @@
                             </div>
                             <i class="fa-solid fa-chevron-down text-sm transition-transform duration-300" :class="{'rotate-180': isOpenContent}"></i>
                         </RouterLink>
-                        <div v-show="isOpenContent" class="flex flex-col overflow-hidden transition-all duration-300 pl-9">
-                            <RouterLink to="/admin/content-management/add" class="pl-4 py-2 text-md flex items-center 
-                            gap-2" active-class="bg-gray-500">Thêm nội dung</RouterLink>
-                            <RouterLink to="/admin/content-management/list" class="pl-4 py-2 text-md flex items-center 
-                            gap-2" active-class="bg-gray-500">Danh sách nội dung</RouterLink>
+                        <div v-show="isOpenContent" class="flex flex-col overflow-hidden transition-all duration-300 ">
+                            <RouterLink to="/admin/content-management/add" class="pl-13 py-2 text-md flex items-center 
+                            gap-2" active-class="bg-gray-400">Thêm nội dung</RouterLink>
+                            <RouterLink to="/admin/content-management/list" class="pl-13 py-2 text-md flex items-center 
+                            gap-2" active-class="bg-gray-400">Danh sách nội dung</RouterLink>
                         </div>
                     </div>
                 </div>
