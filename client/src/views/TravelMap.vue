@@ -1,3 +1,3 @@
 <template>
-    Day la trang travel map
+    travel map
 </template>

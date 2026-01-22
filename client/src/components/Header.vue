@@ -27,7 +27,7 @@
         isChanging.value = false;
       }, 500);
     }
-    else if (scrollPos <= 20 && isScrolled.value){
+    else if (scrollPos <= 50 && isScrolled.value){
       isScrolled.value = false;
       isChanging.value = false;
     }
@@ -48,8 +48,8 @@
 </script>
 
 <template>
-    <div v-if="!isAdminPage" class="sticky w-full top-0 z-50 transition-all duration-700 ease-in-out" 
-      :class="[isHomePage ? 'bg-[#0f1c17]' : 'bg-white shadow-md', isChanging ? 'opacity-0 -translate-y-full' : 'opacity-100 translate-y-0']">
+    <div v-if="!isAdminPage" class="w-full top-0 z-50 transition-all duration-700 ease-in-out" 
+      :class="[isHomePage ? 'fixed bg-transparent backdrop-blur-[2px]' : 'sticky bg-white shadow-md', isChanging ? 'opacity-0 -translate-y-full' : 'opacity-100 translate-y-0']">
         <div class="flex items-center gap-5 justify-between w-full pr-20 transition-all duration-700" 
         :class="isScrolled ? 'h-16 py-5' : 'py-10 h-24'">
             <div>
@@ -73,7 +73,9 @@
             </div>
             <div class="relative group">
                   <RouterLink to="/auth" class="flex items-center justify-center w-10 h-10 " :class="isHomePage ? 'text-white': 'text-black'">
-                    <i class="fa-solid fa-user pr-1 shake-icon text-2xl"></i> <span class="pt-3">▾</span></RouterLink>
+                    <i class="fa-solid fa-user pr-1 shake-icon text-2xl" v-if="!authStore.isLogIn"></i>
+                    <p class="text-lg" v-else>{{ authStore.username }}</p> 
+                    <span class="pt-2">▾</span></RouterLink>
                     <div class="absolute flex-col hidden group-hover:flex group-hover:flex-col bg-white 
                     items-center shadow-lg w-46 rounded-md left-1/2 -translate-x-1/2 z-10">
                         <RouterLink to="/auth/dang-nhap" class="flex items-center justify-center w-full px-4 py-3 text-gray-700 

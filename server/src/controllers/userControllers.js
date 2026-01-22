@@ -124,10 +124,13 @@ const getUser = (req, res) => {
 const updateUser = (req, res) => {
     const {id } = req.params;
     const { fullname, phoneNumber, address } = req.body;
+    if (!password) {
+        return res.status(400).json({ message: "Mật khẩu không được để trống" });
+    }
     const sql = "UPDATE users SET fullname = ?, phoneNumber = ?, address = ? WHERE userID = ?"
     connection.query(sql, [fullname, phoneNumber, address, id], (err, result) => {
         if(err) return res.status(500).json({message: "Lỗi cập nhật"});
-        if(result.affectedRows === 0) return res.status(404).json({message: "Cập nhật không thành công"});
+        if(result.affectedRows === 0) return res.status(404).json({message: "Người dùng không tồn tại"});
         res.status(200).json({message: "Cập nhật thông tin thành công"})
     })
 }
@@ -155,6 +158,27 @@ const deleteUser = (req, res) => {
     })
 }
 
-export default {signup, login, createUser, getUser, updateUser, getAllUsers, deleteUser};
+// dat lai mk
+const updatePassword = async (req, res) => {
+    const { id } = req.params;
+    const { password } = req.body;
+    const hashPass = await bcrypt.hash(password, 10);
+    const sql = "UPDATE users SET password = ? WHERE userID = ?"
+    connection.query(sql, [hashPass, id], (err, result) => {
+        if(err) return res.status(500).json({message: "Lỗi cập nhật"});
+        if(result.affectedRows === 0) return res.status(404).json({message: "Cập nhật không thành công"});
+        res.status(200).json({message: "Cập nhật thông tin thành công"})
+    })
+}
+
+const countUser = (req, res) => {
+    const sql = "SELECT COUNT(*) as total from users"
+    connection.query(sql, (err, result) => {
+        if(err) return res.status(500).json("Lỗi database");
+        res.status(200).json(result[0])
+    })
+}
+
+export default {signup, login, createUser, getUser, updateUser, getAllUsers, deleteUser, updatePassword, countUser};
 
 

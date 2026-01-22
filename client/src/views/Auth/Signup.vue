@@ -171,7 +171,7 @@
                             </div>
                             <div v-if="isSubmit">
                                 <p v-if="passwordLengthError" class="text-red-500 text-sm">Mật khẩu phải có ít nhất 8 ký tự</p>
-                                <p v-if="passwordMatchError" class="text-red-500 text-sm">Mật khẩu không trùng khớp</p>
+                                <p v-if="passwordMatchError" class="text-red-500 text-sm ">Mật khẩu không trùng khớp</p>
                             </div>
                             <div class="flex justify-between">
                                 <div class="flex gap-1">

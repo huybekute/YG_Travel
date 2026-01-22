@@ -1,70 +1,72 @@
 <script setup>
-  import { ref, onMounted } from 'vue';
-  
+  import { ref, onMounted, onUnmounted } from 'vue';
 
-  //tao nut am thanh video
-  const videoRef = ref(null);
-  const isMute = ref(true);
-  
-  const toogleMute = () => {
-    if(!videoRef.value) return;
-    isMute.value = !isMute.value;
-    videoRef.value.muted = isMute.value
+  const showSearch = ref(false);
+
+  const handleScroll = () => {
+    if(window.scrollY > 50) {
+      showSearch.value = true;
+    }
+    else {
+      showSearch.value = false;
+    }
   }
 
-  //text travel in VN
+  onMounted(() => {
+    window.addEventListener('scroll', handleScroll);
+  });
 
-  const fullText = "TRAVEL IN VIETNAM"
-  const displayText = ref('');
-  const showTyping = ref(true);
-  const typingSpped = 120;
-
-  const startTyping = (() => {
-    let idx = 0;
-    const interval = setInterval(() => {
-      if(idx < fullText.length){
-        displayText.value += fullText[idx];
-        idx++;
-      }
-      else{
-        clearInterval(interval);
-          setTimeout(() => {
-            showTyping.value = false
-        }, 3000);
-      }
-    }, typingSpped)
-  })
-
-    onMounted(() => {
-    if(videoRef.value){
-      videoRef.value.muted = true;
-      startTyping();
-    }
-  })
-  
-
+  onUnmounted(() => {
+    window.removeEventListener('scroll', handleScroll);
+  });
 </script>
 
 <template>
-  <div>
-    <div class="relative w-full h-[calc(100vh-theme(spacing.24))] overflow-hidden">
-      <video ref="videoRef" src="/Home/HomeVideo.mp4" class="absolute w-full h-full object-cover" autoplay loop muted playsinline></video>
-      <transition name="">
-        <h1 v-if="showTyping" class="absolute inset-0 z-10 flex items-center justify-center text-white text-4xl md:text-6xl 
-        font-bold tracking-wide"><span class="inline-block text-left" style="width: 18ch" >{{ displayText }}</span></h1>
-      </transition>
-      <button @click="toogleMute" class="absolute bottom-6 right-6 z-20 bg-black/60 text-white w-12 h-12 rounded-full flex items-center
-      justify-center hover:bg-black/80 transition"><i :class="isMute ? 'fa-solid fa-volume-xmark' : 'fa-solid fa-volume-high'"></i></button>
+  <div class="flex flex-col">
+    <!-- anh nen -->
+    <div class="relative w-full overflow-hidden h-screen">
+      <img src="../../public/Home/HomePage.jpg" class="absolute w-full h-full object-cover" >
       <div class="absolute inset-0 bg-black/40"></div>
     </div>
     
-    <div class="bg-blue-500 pt-20">
-      <p>addad</p>
-      <p>addad</p>
-      <p>addad</p>
-      <p>addad</p>
-      <p>addad</p>
-
+    <!-- thanh search -->
+    <div class="flex gap-5 p-6 bg-white rounded-2xl mx-auto z-10 -mt-12 shadow-2xl border border-gray-100 transition-all duration-700 ease-out"
+      :class="[showSearch ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-10 scale-95 pointer-events-none']">
+      <div class="flex flex-col gap-2 w-48">
+        <select class="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-green-500 transition-all cursor-pointer">
+          <option value="" disabled selected>Chọn điểm đến</option>
+          <option class="text-black" value="halong">Vịnh Hạ Long</option>
+          <option class="text-black" value="phuquoc">Phú Quốc</option>
+          <option class="text-black" value="hanoi">Thủ đô Hà Nội</option>
+        </select>
+      </div>
+      <div class="border-r border-gray-200 px-5"></div>
+      <div class="flex flex-col gap-2 w-48">
+        <select class="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-green-500 transition-all cursor-pointer">
+          <option value="" disabled selected>Chủ đề</option>
+          <option class="text-black" value="halong">Biển, đảo</option>
+          <option class="text-black" value="phuquoc">Nghỉ dưỡng</option>
+          <option class="text-black" value="hanoi">Núi rừng</option>
+        </select>
+      </div>
+      <div class="border-r border-gray-200 px-5"></div>
+      <div class="flex flex-col gap-2 w-48">
+        <select class="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-green-500 transition-all cursor-pointer">
+          <option value="" disabled selected>Sắp xếp</option>
+          <option class="text-black" value="halong">Phổ biến nhất</option>
+          <option class="text-black" value="phuquoc">Đánh giá cao nhất</option>
+          <option class="text-black" value="hanoi">Mới nhất</option>
+        </select>
+      </div>
+      <div class="border-r border-gray-200 px-5"></div>
+      <div class="items-center flex">
+        <button class="px-4 py-2 text-sm bg-green-600 hover:bg-green-700 text-white rounded-full shadow-md transition-all
+        flex gap-2 items-center"><span>Tìm kiếm</span><i class="fa-solid fa-magnifying-glass text-sm"></i></button>
+      </div>
+    </div>
+    <!-- kHAM PHA -->
+    <div class="flex py-10">
+      <h1 class="font-bolds text-2xl mx-auto">Khám Phá Kho Báu Việt Nam Cùng YG Travel</h1>
     </div>
   </div>
 </template>

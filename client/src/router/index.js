@@ -55,27 +55,19 @@ const router = createRouter({
           path: 'content-management',
           name: 'content-management',
           component: () => import('../views/Admin/ContentManagement.vue'),
-          redirect: '/admin/content-management/list',
-          children: [
-            {
-              path: 'add',
-              name: 'add',
-              component: () =>  import('../views/Admin/addContent.vue'),
-              meta: {title: 'Thêm nội dung'}
-            },
-            {
-              path: 'list',
-              name: 'list',
-              component: () =>  import('../views/Admin/ListContent.vue'),
-              meta: {title: 'Danh sách nội dung'}
-            },
-          ]
+          meta: { title : 'Quản lý nội dung'}
         },
         {
           path: 'user-management',
           name: 'user-management',
           component: () => import('../views/Admin/UserManagement.vue'),
-          meta: { title: 'Quản lý tài khoản' }
+          meta: { title: 'Quản lý người dùng' }
+        },
+        {
+          path: 'admin-management',
+          name: 'admin-management',
+          component: () => import('../views/Admin/AdminManagement.vue'),
+          meta: { title: 'Quản lý admin' }
         }
       ]
     },

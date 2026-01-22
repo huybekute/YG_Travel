@@ -47,7 +47,12 @@
             const res = await apiService.post('/user/login', userData);
             
             authStore.login(res.data);
-            await router.push("/");
+            if(authStore.isAdmin){
+                await router.push("/admin");
+            }
+            else{
+                await router.push("/");
+            }
         }
         catch(error){
             const status = error.response?.status;
