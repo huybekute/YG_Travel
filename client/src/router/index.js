@@ -37,12 +37,12 @@ const router = createRouter({
     },
     {
       path: '/admin',
-      name: 'admin',
       component: () => import('../views/Admin/admin.vue'),
       meta: { requiresAdmin: true },
       children : [
         {
           path: '',
+          name: 'admin',
           redirect: '/admin/dashboard'
         },
         {
@@ -73,11 +73,11 @@ const router = createRouter({
     },
     {
       path: '/auth',
-      name: 'auth',
       component: () => import('../views/Auth/Auth.vue'),
       children : [
         {
           path: '',
+          name: 'auth',
           redirect: '/auth/dang-nhap'
         },
         {
@@ -93,6 +93,18 @@ const router = createRouter({
           meta: { title: 'Đăng ký'}
         }
       ]
+    },
+    {
+      path: '/dieu-khoan-dich-vu',
+      name: 'dieu-khoan-dich-vu',
+      component: () => import('../views/Terms.vue'),
+      meta: { title : 'Điều khoản sử dụng'}
+    },
+    {
+      path: '/chinh-sach-bao-mat',
+      name: 'chinh-sach-bao-mat',
+      component: () => import('../views/PrivacyPolicy.vue'),
+      meta: { title : 'Điều khoản sử dụng'}
     }
   ],
   scrollBehavior(to, from, savePosition){

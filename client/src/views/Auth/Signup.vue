@@ -191,8 +191,8 @@
                 </div>
                 <div class="pt-3">
                     <p class="text-xs text-center">Bằng việc đăng ký, bạn đã đồng ý với chúng tôi về <br/>
-                    <a href="" class="text-blue-600 hover:text-blue-700 hover:underline ">Điều khoản dịch vụ</a> &  
-                    <a href="" class="text-blue-600 hover:text-blue-700 hover:underline ">Chính sách bảo mật</a>
+                    <RouterLink to="/dieu-khoan-dich-vu" class="text-blue-600 hover:text-blue-700 hover:underline ">Điều khoản dịch vụ</RouterLink> &  
+                    <RouterLink to="/chinh-sach-bao-mat" class="text-blue-600 hover:text-blue-700 hover:underline ">Chính sách bảo mật</RouterLink>
                     </p>
                 </div>
             </div>

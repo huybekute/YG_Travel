@@ -23,6 +23,8 @@
 
     const isAdminPage = computed(() => route.path.startsWith('/admin'));
 
+    
+
 </script>
 
 <template>
@@ -74,11 +76,11 @@
         <div class="border-b border-green-500/20"></div>
         <div class="flex text-gray-400  justify-between px-10 pt-10 pb-5">
             <div class="">
-                <p>&copy; 2025 YG Travel. All rights reserved.</p>
+                <p>&copy; 2026 YG Travel. All rights reserved.</p>
             </div>
             <div class="flex gap-10">
-                <a class="hover:text-green-400 transition-colors" href="">Điều khoản dịch vụ</a>
-                <a class="hover:text-green-400 transition-colors" href="">Chinh sách bảo mật</a>
+                <RouterLink class="hover:text-green-400 transition-colors" to="/dieu-khoan-dich-vu">Điều khoản dịch vụ</RouterLink>
+                <RouterLink class="hover:text-green-400 transition-colors" to="/chinh-sach-bao-mat">Chinh sách bảo mật</RouterLink>
             </div>
         </div>
     </div>
