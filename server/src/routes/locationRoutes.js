@@ -5,6 +5,9 @@ import verifyToken from "../middleware/verifyToken.js";
 
 const router = express.Router()
 
+router.get("/countLocationByProvince", locationController.countLocationByProvince);
+router.get("/countLocationByCategory", locationController.countLocationByCategory);
+router.get("/getTopLocation", locationController.getTopLocation);
 router.get("/:id", locationController.getLocation);
 router.get("/", locationController.getAllLocations);
 
