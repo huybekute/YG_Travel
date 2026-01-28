@@ -68,6 +68,12 @@ const router = createRouter({
           name: 'admin-management',
           component: () => import('../views/Admin/AdminManagement.vue'),
           meta: { title: 'Quản lý admin' }
+        },
+        {
+          path: 'contact-management',
+          name: 'contact-management',
+          component: () => import('../views/Admin/ContactManagement.vue'),
+          meta: { title: 'Quản lý liên hệ' }
         }
       ]
     },
@@ -105,7 +111,13 @@ const router = createRouter({
       name: 'chinh-sach-bao-mat',
       component: () => import('../views/PrivacyPolicy.vue'),
       meta: { title : 'Điều khoản sử dụng'}
-    }
+    },
+    {
+      path: '/thong-tin-tai-khoan',
+      name: 'thong-tin-tai-khoan',
+      component: () => import('../views/Profile.vue'),
+      meta: { title: 'Thông tin tài khoản' }
+    },
   ],
   scrollBehavior(to, from, savePosition){
     return {top: 0}

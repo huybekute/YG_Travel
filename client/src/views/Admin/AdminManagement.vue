@@ -24,7 +24,7 @@
 
 <template>
     <div class="flex flex-col gap-5 ">
-        <div class="font-sans font-bold pt-3">
+        <div class="font-bold pt-3">
             <h1 class="text-2xl text-gray-500">Quản lý ADMIN</h1>
         </div> 
 

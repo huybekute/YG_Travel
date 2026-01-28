@@ -39,6 +39,20 @@
         }
     }
 
+    const visiblePage = computed(() => {
+        const page = []
+        const total = totalPage.value
+        const current = currentPage.value
+        const range = 1
+
+        for(let i=1; i<=total; i++){
+            if(i===1 || i===total || (i >= current - range && i <= current + range)) page.push(i)
+            else if(i=== current - range - 1 || current + range + 1) page.push("...")
+        }
+
+        return page.filter((item, index, arr) => item !== "..." || arr[index - 1] !== "...");
+    })
+
     //tu quay lai dau trang khi loc
     watch([searchQuery, selectedProvince], () => {
         currentPage.value = 1;
@@ -187,7 +201,46 @@
         }
     }
     
-    
+    //cap nhat dia diem
+    const isUpdateModalOpen =  ref(false);
+    const updateLocationData = ref({
+        locationID: '',
+        locationName: '',
+        provinceID: '',
+        categoryID: '',
+        description: '',
+    });
+
+    const openUpdateModal = (location) => {
+        updateLocationData.value = {
+            locationID: location.locationID,
+            locationName: location.name,
+            provinceID: provinces.value.find(p => p.name === location.provinceName)?.provinceID || '',
+            categoryID: categories.value.find(c => c.name === location.categoryName)?.categoryID || '',
+            description: location.description
+        }
+
+        isUpdateModalOpen.value = true;
+    }
+
+    const updateLocation = async () => {
+        try{
+            const id = updateLocationData.value.locationID;
+            const res = await apiService.put(`/location/${id}`, updateLocationData.value)
+            await getAllLocations()
+            isUpdateModalOpen.value = false
+        }
+        catch(err){
+            const status = err.response?.status
+            const message = err.response?.data?.message
+            if(status === 400 || status === 409 || status === 500 || status === 404) {
+                alert(message)
+            }      
+            else{
+                alert("Lỗi hệ thống: " + err);
+            }
+        }
+    }
     
 </script>
 
@@ -195,7 +248,9 @@
     <!-- Khung quan ly dia diem -->
     <div class="p-6">
         <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold text-gray-800">Quản lý địa điểm</h1>
+            <div class="font-bold pt-3">
+                <h1 class="text-2xl text-gray-500">Quản lý địa điểm</h1>
+            </div> 
             <button class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg flex 
             items-center transition-all gap-2 cursor-pointer" @click="toggleModal"><i class="fa-solid fa-plus"></i> Thêm địa điểm</button>
         </div>
@@ -233,7 +288,7 @@
                     <span class="py-1 font-medium line-clamp-2">{{ location.description }}</span>
                 </div>
                 <div class="w-1/5 flex justify-center gap-3">
-                    <button title="Chỉnh sửa" class="p-2 text-blue-500 rounded-lg transition-colors cursor-pointer">
+                    <button @click="openUpdateModal(location)" title="Chỉnh sửa" class="p-2 text-blue-500 rounded-lg transition-colors cursor-pointer">
                         <i class="fa-solid fa-pen-to-square"></i>
                     </button>
                     <button @click="deleteLocation(location.locationID)" title="Xóa" class="p-2 text-red-500 rounded-lg transition-colors cursor-pointer">
@@ -244,11 +299,11 @@
         </div>
         <div class="flex justify-between items-center mt-6 text-sm text-gray-500">
             <p>Hiển thị {{ filteredLocations.length > 0 ? (currentPage - 1) * itemPerPage + 1 : 0 }} - 
-        {{ Math.min(currentPage * itemPerPage, filteredLocations.length) }} của <span class="font-bold text-gray-800">{{ filteredLocations.length }}</span> địa điểm</p>
+            {{ Math.min(currentPage * itemPerPage, filteredLocations.length) }} của <span class="font-bold text-gray-800">{{ filteredLocations.length }}</span> địa điểm</p>
             <div class="flex gap-2">
                 <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1" class="px-4 py-2 border rounded-lg 
                 hover:bg-gray-100 disabled:opacity-50 cursor-pointer">Trước</button>
-                <button class="cursor-pointer" v-for="page in totalPage" :key="page" @click="changePage(page)" 
+                <button class="cursor-pointer" v-for="page in visiblePage" :key="page" @click="changePage(page)" 
                 :class="['px-4 py-2 rounded-lg font-medium', 
                 currentPage === page ? 'bg-green-600 text-white' : 'border hover:bg-gray-100']">{{ page }}</button>
                 <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPage || totalPage === 0"
@@ -298,6 +353,47 @@
                 <button @click="toggleModal" class="px-4 py-2 text-sm font-semibold text-gray-600 hover:text-gray-800">Hủy</button>
                 <button @click="addLocation" class="px-6 py-2 bg-green-600 text-white rounded-lg text-sm font-bold
                  hover:bg-green-500 shadow-md transition-all">Lưu thông tin</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- form cap nhat dia diem -->
+    <div v-if="isUpdateModalOpen" class="fixed inset-0 z-50 flex items-center justify-center">
+        <div class="absolute inset-0 bg-black/20" @click="isUpdateModalOpen = false"></div>
+        <div class="bg-white rounded-xl shadow-2xl z-10 w-full max-w-lg overflow-hidden">
+            <div class="px-6 py-4 border-b flex justify-between items-center">
+                <h3 class="text-lg font-bold text-blue-800">Chỉnh sửa địa điểm</h3>
+                <button @click="isUpdateModalOpen = false" class="text-gray-400 hover:text-red-500">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Tên địa điểm</label>
+                    <input type="text" v-model="updateLocationData.locationName" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm"/>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Tỉnh thành</label>
+                        <select class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm" v-model="updateLocationData.provinceID">
+                            <option v-for="province in provinces" :key="province.provinceID" :value="province.provinceID">{{ province.name }}</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Loại hình</label>
+                        <select class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm" v-model="updateLocationData.categoryID">
+                            <option v-for="category in categories" :key="category.categoryID" :value="category.categoryID">{{ category.name }}</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Mô tả</label>
+                    <textarea v-model="updateLocationData.description" rows="4" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm"></textarea>
+                </div>
+            </div>
+            <div class="px-6 py-4 bg-gray-50 border-t flex justify-end gap-3">
+                <button @click="isUpdateModalOpen = false" class="px-4 py-2 text-sm font-semibold text-gray-600">Hủy</button>
+                <button type="submit" @click="updateLocation" class="px-6 py-2 bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700 shadow-md">Cập nhật thay đổi</button>
             </div>
         </div>
     </div>

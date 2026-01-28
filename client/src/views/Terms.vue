@@ -1,5 +1,5 @@
 <template>
-    <div class="w-7/10 flex flex-col justify-center border border-gray-300 mx-auto p-2 my-15 my-6 space-y-5 pb-5">
+    <div class="w-7/10 flex flex-col justify-center border border-gray-300 mx-auto p-2 my-15 space-y-5 pb-5">
         <h1 class="text-2xl">Điều khoản dịch vụ YG Travel</h1>
         <h1 class="text-blue-700 font-bold items-center mx-auto text-xl">Điều khoản dịch vụ YG Travel</h1>
         <img src="../../public/Logo.jpg" class="w-1/5 flex justify-center mx-auto"/>

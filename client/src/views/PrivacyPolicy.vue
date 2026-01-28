@@ -1,5 +1,5 @@
 <template>
-    <div class="w-7/10 flex flex-col justify-center border border-gray-300 mx-auto my-15 p-2 my-6 space-y-5 pb-5">
+    <div class="w-7/10 flex flex-col justify-center border border-gray-300 mx-auto my-15 p-2 space-y-5 pb-5">
         <h1 class="text-2xl">Thông tin về quyền riêng tư cá nhân</h1>
         <h1 class="text-blue-700 font-bold items-center mx-auto text-xl">Chính sách về quyền riêng tư cá nhân của khách hàng</h1>
         <img src="../../public/Logo.jpg" class="w-1/5 flex justify-center mx-auto"/>

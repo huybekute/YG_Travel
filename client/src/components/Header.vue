@@ -82,7 +82,7 @@
                         hover:text-green-600 transition-colors hover:bg-green-100" v-if="!authStore.isLogIn"><span class="text-md font-medium">Đăng nhập</span></RouterLink>
                         <RouterLink to="/auth/dang-ky" class="flex items-center hover:bg-green-100 justify-center w-full  px-4 py-3 text-gray-700 
                         hover:text-green-600 transition-colors " v-if="!authStore.isLogIn"><span class="text-md font-medium">Đăng ký</span></RouterLink>
-                        <RouterLink to="/auth/dang-ky" class="flex items-center hover:bg-green-100 justify-center w-full  px-4 py-3 text-gray-700 
+                        <RouterLink to="/thong-tin-tai-khoan" class="flex items-center hover:bg-green-100 justify-center w-full  px-4 py-3 text-gray-700 
                         hover:text-green-600 transition-colors" v-if="authStore.isLogIn" ><span class="text-md font-medium">Thông tin tài khoản</span></RouterLink>
                         <RouterLink to="/admin" class="flex items-center hover:bg-green-100 justify-center w-full  px-4 py-3 text-gray-700 
                         hover:text-green-600 transition-colors" v-if="authStore.isLogIn && authStore.isAdmin"><span class="text-md font-medium">Bảng điều khiển</span></RouterLink>
