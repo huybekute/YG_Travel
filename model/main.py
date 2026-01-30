@@ -32,3 +32,13 @@ def recommendAPI(data: UserRequest):
 
     return kqDF.to_dict(orient="records")
 
+# from fastapi.middleware.cors import CORSMiddleware
+
+# Phải có đoạn này để trình duyệt không chặn request từ Vue
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["*"],      # Cho phép tất cả các trang web truy cập
+#     allow_credentials=True,
+#     allow_methods=["*"],      # Cho phép tất cả các phương thức (GET, POST, OPTIONS...)
+#     allow_headers=["*"],      # Cho phép tất cả các headers
+# )

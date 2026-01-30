@@ -131,3 +131,64 @@ const guides = [
   will-change: transform, opacity;
 }
 </style> -->
+
+
+<template>
+  <div class="p-6 max-w-2xl mx-auto">
+    <h2 class="text-2xl font-bold mb-4">Gợi ý địa điểm du lịch</h2>
+    
+    <div class="space-y-4 bg-gray-100 p-4 rounded-lg">
+      <div>
+        <label class="block mb-1">Bạn muốn đi đâu?</label>
+        <input v-model="requestData.query" placeholder="Ví dụ: du lịch biển có hải sản..." 
+               class="w-full p-2 border rounded" />
+      </div>
+      
+      <div>
+        <label class="block mb-1">Số lượng gợi ý:</label>
+        <input type="number" v-model.number="requestData.numPlaces" 
+               class="w-full p-2 border rounded" />
+      </div>
+
+      <button @click="getRecommendations" :disabled="loading"
+              class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+        {{ loading ? 'Đang tìm kiếm...' : 'Lấy gợi ý' }}
+      </button>
+    </div>
+
+    <div v-if="results.length" class="mt-6 space-y-4">
+      <h3 class="text-xl font-semibold">Kết quả:</h3>
+      <div v-for="(item, index) in results" :key="index" class="border p-4 rounded shadow-sm">
+        <h4 class="font-bold text-lg">{{ item['Tên địa điểm'] }}</h4>
+        <p class="text-gray-600">{{ item['Mô tả'] }}</p>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref } from 'vue';
+import axios from 'axios';
+
+const requestData = ref({
+  query: '',
+  numPlaces: 3
+});
+const results = ref([]);
+const loading = ref(false);
+
+const getRecommendations = async () => {
+  if (!requestData.value.query) return alert("Vui lòng nhập yêu cầu!");
+  
+  loading.value = true;
+  try {
+    const response = await axios.post('http://127.0.0.1:8000/recommendation', requestData.value);
+    results.value = response.data;
+  } catch (error) {
+    console.error("Lỗi khi gọi API:", error);
+    alert("Không thể kết nối với Server FastAPI!");
+  } finally {
+    loading.value = false;
+  }
+};
+</script>

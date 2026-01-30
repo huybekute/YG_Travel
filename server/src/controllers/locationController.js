@@ -128,4 +128,5 @@ const getTopLocation = (req, res) => {
         res.status(200).json(result);
     });
 }
+
 export default { addLocation, deleteLocation, getLocation, getAllLocations, updateLocation, countLocationByProvince, countLocationByCategory, getTopLocation };
