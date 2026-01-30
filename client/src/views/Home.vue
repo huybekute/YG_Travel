@@ -1,5 +1,5 @@
 <script setup>
-    import { ref, onMounted, onUnmounted } from 'vue';
+    import { ref, onMounted, onUnmounted, computed } from 'vue';
     import apiService from '@/services/APIService';
     import LocationCard from '@/components/LocationCard.vue';
 
@@ -69,12 +69,6 @@
         }
     }
 
-    onMounted(() => {
-        getAllProvinces();
-        getAllCategories();
-    })
-
-
     const showLocation = ref(false);
     const locationSection = ref(null);
 
@@ -134,7 +128,35 @@
         // }
     })
 
-    
+    const locations = ref([])
+    const getAllLocation = async () => {
+        try{
+            const res = await apiService.get("/location/")
+            if(res.data){
+                locations.value = res.data
+            }
+        }
+        catch(err){
+            const status = err.response?.status;
+            const message = err.response?.data?.message;
+
+            if(status === 400 || status === 500 || status === 404 || status === 409) {
+                console.log(message);
+            }
+        }
+    }
+
+    // loc danh sach hien thi theo ID
+    const listLocationID = [33, 32, 31, 34]
+    const popularLocation = computed(() => {
+        return locations.value.filter(loc => listLocationID.includes(loc.locationID))
+    })
+
+    onMounted(() => {
+        getAllProvinces();
+        getAllCategories();
+        getAllLocation();
+    })
 </script>
 
 <template>
@@ -206,18 +228,7 @@
                 </p>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 px-10">
-                <LocationCard/>
-                <LocationCard/>
-                <LocationCard/>
-                <LocationCard/>
-                <LocationCard/>
-                <LocationCard/>
-                <LocationCard/>
-                <LocationCard/>
-                <LocationCard/>
-                <LocationCard/>
-                <LocationCard/>
-                <LocationCard/>
+                <LocationCard v-for="item in popularLocation" :key="item.locationID" :location="item" />
             </div>
             <div class="flex pt-5">
                 <RouterLink to="/diem-den" class="group bg-green-500 py-3 px-8 rounded-full text-white mx-auto hover:bg-green-600 transition-all 

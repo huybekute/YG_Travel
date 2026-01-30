@@ -4,8 +4,10 @@ import pandas as pd
 from Preprocess import preprocessText, loadAndProcess
 from Recommendation import recommenPlaces
 from sklearn.feature_extraction.text import TfidfVectorizer
+from middleware import middleWare
 
 app = FastAPI()
+middleWare(app)
 dataPath = "dataset/dataset.xlsx"
 df = loadAndProcess(dataPath)
 
@@ -18,6 +20,8 @@ class UserRequest(BaseModel):
     query: str
     numPlaces: int = 3
 
+#tinh toan ma tran du lieu
+tfidfMatrix = tfidf.transform(df['Mô tả sau xử lý'])
 #create api
 @app.post("/recommendation")
 def recommendAPI(data: UserRequest):
@@ -26,19 +30,9 @@ def recommendAPI(data: UserRequest):
         userInput=data.query,
         df=df,
         tfidf=tfidf,
+        tfidfMatrix=tfidfMatrix,
         preprocessText=preprocessText,
         numRecommendation=data.numPlaces
     )
 
     return kqDF.to_dict(orient="records")
-
-# from fastapi.middleware.cors import CORSMiddleware
-
-# Phải có đoạn này để trình duyệt không chặn request từ Vue
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=["*"],      # Cho phép tất cả các trang web truy cập
-#     allow_credentials=True,
-#     allow_methods=["*"],      # Cho phép tất cả các phương thức (GET, POST, OPTIONS...)
-#     allow_headers=["*"],      # Cho phép tất cả các headers
-# )

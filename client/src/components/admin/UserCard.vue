@@ -1,8 +1,7 @@
 <script setup>
   import apiService from '@/services/APIService';
   import { ref, watch } from 'vue';
-
-
+  
     const props = defineProps({
         user: {
           type: Object,
