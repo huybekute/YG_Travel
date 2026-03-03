@@ -1,7 +1,9 @@
 <script setup>
-    import { ref, computed, watch, nextTick } from 'vue';
+    import { ref, computed, watch, nextTick, onMounted } from 'vue';
     import { useRoute } from 'vue-router';
     import apiModel from '@/services/APIModel';
+    import apiService from '@/services/APIService';
+    import LocationCard from './LocationCard.vue';
     
     const route = useRoute()
 
@@ -35,23 +37,17 @@
         chatHistory.value.push({ role: 'user', text: messageToSend });
         isLoad.value = true;
         userMsg.value = '';
-        
+   
         try{
             const res = await apiModel.post("/recommendation", { query: messageToSend});
             let doraRes = "";
-
-            //tach mang res thanh cau tra loi co y nghia    
-            if(Array.isArray(res.data) && res.data.length > 0) {
-                doraRes = "Dora tìm thấy vài chỗ hợp ý bạn nè:\n\n";
-                res.data.forEach((item, idx) => {
-                    doraRes += `${idx + 1}. ${item['Địa điểm']} (${item['Tỉnh']})\n`;
-                    doraRes += `${item['Mô tả']}\n\n`;
-                })
-            }
-            else{
-                doraRes = "Dora không thể tìm thấy địa điểm phù hợp với yêu cầu của bạn"
+            if(res.data && res.data.answer){
+                doraRes = res.data.answer
             }
 
+            else {
+                doraRes = "Dora không tìm thấy thông tin phù hợp trong sách hướng dẫn.";
+            }
             chatHistory.value.push({ role: 'dora', text: doraRes });
         }
         catch(error){
@@ -64,15 +60,39 @@
         }
     }
 
+    const locations = ref([])
+    const getAllLocation = async () => {
+        try{
+            const res = await apiService.get("/location/")
+            if(res.data){
+                locations.value = res.data
+            }
+        }
+        catch(err){
+            const status = err.response?.status;
+            const message = err.response?.data?.message;
+
+            if(status === 400 || status === 500 || status === 404 || status === 409) {
+                console.log(message);
+            }
+        }
+    }
+
+
+    onMounted(() =>{
+        getAllLocation();
+    })
+    
     // khi co tin nhan moi thi cuon trang
     watch(chatHistory, () => {
         scrollToBottom();
     }, { deep: true });
+
 </script>
 
 <template>
     <div class="fixed bottom-12 right-6 z-50 flex flex-col items-end font-sans" v-if="!isAdminPage">
-        <div v-if="isChatOpen" class="mb-4 w-120 h-[550px] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-100 transition-all">
+        <div v-if="isChatOpen" class="mb-4 w-120 h-140 bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-100 transition-all">
             <div class="bg-blue-600 p-4 text-white flex justify-between items-center shadow-sm">
                 <div class="flex items-center gap-3">
                     <img src="/DoraChan.jpg" class="w-10 h-10 rounded-full border-2 border-white object-cover">

@@ -1,33 +1,71 @@
-import pandas as pd
-from underthesea import word_tokenize
-import re
+from transformers import AutoModel, AutoTokenizer
+import torch
+import os
+import fitz
+import faiss
+import pickle
+import numpy as np
 
-# stopword 
-stopWord = [
-    'và', 'là', 'khi', 'theo', 'của', 'nên', 'ra', 'đã', 'được', 'nhất', 'ở', 'thì', 'lại',
-    'như', 'có', 'một', 'để', 'rằng', 'trong', 'này', 'với', 'cho', 'rất', 'nhiều', 'các'
-]
+#khoi tao phoBERT
+modelName = 'vinai/phobert-base'
+dataset_path = 'dataset'
+index_file = "storage/travel.index" # luu vector
+medata_file = "storage/travel_medata.pkl" # luu van ban goc
 
-# tien xuly van ban
-def preprocessText(text):
-    if not isinstance(text, str) or not text.strip():
-        return ""
-    text = text.lower()
-    text = re.sub(r'[^\w\s]', ' ', text)
-    text = re.sub(r'\d+', '', text)
+tokenizer = AutoTokenizer.from_pretrained(modelName)
+model = AutoModel.from_pretrained(modelName)
 
-    word = word_tokenize(text, format="text").split()
-    word = [w for w in word if w not in stopWord]
-    return ' '.join(word) if word else ""
+def encode_sentences(sentences):
+    inputs = tokenizer(sentences, return_tensors='pt', truncation=True, padding=True, max_length=128)
+    with torch.no_grad():
+        outputs = model(**inputs)
+    
+    #lay output lop cuoi
+    last_hidden_state = outputs.last_hidden_state
+    attention_mask = inputs['attention_mask']
+    input_mask_expanded = attention_mask.unsqueeze(-1).expand(last_hidden_state.size()).float() #mo rong mask
+    sum_embeddings = torch.sum(last_hidden_state * input_mask_expanded, 1) #tinh tong vector
+    sum_mask = torch.clamp(input_mask_expanded.sum(1), min=1e-9) #tinh tong tu
+    mean_embeddings = sum_embeddings / sum_mask #tinh tb
+    return mean_embeddings.detach().numpy()
+
+def preprocessing():
+    all_chunks = []
+
+    # doc tat ca file pdf
+    for filename in os.listdir(dataset_path):
+        if(filename).endswith(".pdf"):
+            print(f"{filename}")
+            doc = fitz.open(os.path.join(dataset_path, filename))
+            full_text = ""
+            for page in doc:
+                full_text += page.get_text() + " "
+
+            # chia nho van ban
+            sentences = [s.strip() for s in full_text.split('. ') if len(s.strip()) > 20]
+            for s in sentences:
+                all_chunks.append({"text": s, "source": filename})
 
 
-# doc data tu excel va xu ly
-def loadAndProcess(path):
-    df = pd.read_excel(path)
-    df['Mô tả'] = df['Mô tả'].fillna("").astype(str)
-    df['Mô tả sau xử lý'] = df['Mô tả'].apply(preprocessText)
-    df = df[df['Mô tả sau xử lý'].str.strip() != ''].reset_index(drop=True)
-    return df
+    # chuyen van ban thanh vector
+    print(f"chuyen doi {len(all_chunks)} doan van")
+    text = [item['text'] for item in all_chunks]
+    vectors = encode_sentences(text).astype('float32')
 
+    # tao va luu faiss
+    dimension = vectors.shape[1] # 768 chieu
+    index = faiss.IndexFlatL2(dimension)
+    index.add(vectors)
+    faiss.write_index(index, index_file)
+    
+    # luu medata
+    with open(medata_file, 'wb') as f:
+        pickle.dump(all_chunks, f)
+    
+    print(f"da luu thanh cong indexfile va medatafile")
+
+
+if __name__ == "__main__":
+    preprocessing()
 
 

@@ -1,28 +1,42 @@
-from sklearn.feature_extraction.text import TfidfVectorizer
 import pandas as pd
-from sklearn.metrics.pairwise import cosine_similarity
 
-def recommenPlaces(userInput, df, tfidf, tfidfMatrix, preprocessText, numRecommendation=3):
-    inputText = preprocessText(userInput)
-    if not inputText:
+def recommendation(user_input, index, all_chunks, encode_fn, num_chunk):
+    #chuyen cau hoi ng dung thanh vector
+    query_vector = encode_fn([user_input]).astype('float32')
+
+    # tim kiem vector gan nhat
+    # d : khoang cach, i: chi so
+    D, I = index.search(query_vector, num_chunk)
+
+    #xac dinh file co doan van giong nhat
+    if I[0][0] == -1:
         return pd.DataFrame()
-
-    # chuyen text thanh vector va tinh toan do tuong dong van ban
-    inputVector = tfidf.transform([inputText])
-
-    # tfidfMatrix = tfidf.transform(df['Mô tả sau xử lý'])
-    cosineSim = cosine_similarity(inputVector, tfidfMatrix).flatten()
-
-    # goi y dia diem co do tuong dong lon hon 20%
-    threshold = 0.2
-    validIds = [i for i, score in enumerate(cosineSim) if score >= threshold]
-    if not validIds:
-        return pd.DataFrame() # tra ve list rong neu ko co dia diem nao giong tren 50%
-    sortIds = sorted(validIds, key=lambda x: cosineSim[x], reverse=True)
-    topIds = sortIds[:numRecommendation]
-
-    # trich xuat kq
-    rcmdt = df.iloc[topIds].copy()
-    rcmdt['Độ tương đồng'] = (cosineSim[topIds] * 100).round(2)
-    return rcmdt[['Địa điểm', 'Mô tả', 'Tỉnh', 'Độ tương đồng']]
     
+    best_idx = I[0][0]
+    best_source = all_chunks[best_idx]['source'] # dia diem se lay
+
+    # lay ket qua loc ra 5 chunks tot nhat ve dia diem nay
+    recommendations = []
+    count = 0
+    for i in range(len(I[0])):
+        idx = I[0][i]
+        if idx == -1: continue
+
+        chunk = all_chunks[idx]
+        
+        # chi lay neu doan van thuoc ve file da chon
+        if chunk['source'] == best_source:
+            distance = D[0][i]
+            score = round(max(0, 100 - distance), 2)
+            
+            recommendations.append({
+                "Địa điểm": best_source.replace(".pdf", ""),
+                "Thông tin liên quan": chunk['text'],
+                "Độ tương đồng": f"{score}%"
+            })
+            count += 1
+            
+        if count == 30:
+            break
+
+    return pd.DataFrame(recommendations)
