@@ -3,7 +3,6 @@
     import { useRoute } from 'vue-router';
     import apiModel from '@/services/APIModel';
     import apiService from '@/services/APIService';
-    import LocationCard from './LocationCard.vue';
     
     const route = useRoute()
 

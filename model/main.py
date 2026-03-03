@@ -32,6 +32,7 @@ def get_recommendation(request: UserRequest):
         final_ans = gemini_reponse(request.query, df_recommen)
         return {
             "answer": df_recommen.to_dict(orient='records'),
+            # "answer" : final_ans, 
             "place": df_recommen.iloc[0]['Địa điểm'] if not df_recommen.empty else "N/A",
         }
     
