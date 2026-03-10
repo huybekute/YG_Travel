@@ -22,9 +22,6 @@
     })
 
     const isAdminPage = computed(() => route.path.startsWith('/admin'));
-
-    
-
 </script>
 
 <template>

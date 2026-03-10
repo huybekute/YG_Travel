@@ -76,7 +76,7 @@
       if (!validatePassword()) return;
       if(!confirm("Bạn có chắc chắn muốn cập nhật mật khẩu")) return;
       try{
-        const res = await apiService.put(`/user/updatePassword/${props.user.userID}`,
+        const res = await apiService.put(`/user/resetPassword/${props.user.userID}`,
           { password: password.value }
         );
         if(res.status === 200 ){

@@ -124,9 +124,6 @@ const getUser = (req, res) => {
 const updateUser = (req, res) => {
     const {id } = req.params;
     const { fullname, phoneNumber, address } = req.body;
-    if (!password) {
-        return res.status(400).json({ message: "Mật khẩu không được để trống" });
-    }
     const sql = "UPDATE users SET fullname = ?, phoneNumber = ?, address = ? WHERE userID = ?"
     connection.query(sql, [fullname, phoneNumber, address, id], (err, result) => {
         if(err) return res.status(500).json({message: "Lỗi cập nhật"});
@@ -161,6 +158,28 @@ const deleteUser = (req, res) => {
 // dat lai mk
 const updatePassword = async (req, res) => {
     const { id } = req.params;
+    const { currentPass, newPass } = req.body;
+    const selectSql = "SELECT password FROM users WHERE userID = ?";
+    connection.query(selectSql, [id], async (err, result) => {
+        if (err) return res.status(500).json({ message: "Lỗi hệ thống khi tìm user" });
+        if (result.length === 0) return res.status(404).json({ message: "Người dùng không tồn tại" });
+        const hashedOldPassword = result[0].password;
+        const isMatch = await bcrypt.compare(currentPass, hashedOldPassword);
+        if (!isMatch) {
+            return res.status(400).json({ message: "Mật khẩu hiện tại không chính xác" });
+        }
+        const hashPass = await bcrypt.hash(newPass, 10);
+        const sql = "UPDATE users SET password = ? WHERE userID = ?"
+        connection.query(sql, [hashPass, id], (err, result) => {
+            if(err) return res.status(500).json({message: "Lỗi cập nhật"});
+            if(result.affectedRows === 0) return res.status(404).json({message: "Cập nhật không thành công"});
+            res.status(200).json({message: "Cập nhật thông tin thành công"})
+        })
+    })
+}
+
+const resetPass = async (req, res) => {
+    const { id } = req.params;
     const { password } = req.body;
     const hashPass = await bcrypt.hash(password, 10);
     const sql = "UPDATE users SET password = ? WHERE userID = ?"
@@ -179,6 +198,6 @@ const countUser = (req, res) => {
     })
 }
 
-export default {signup, login, createUser, getUser, updateUser, getAllUsers, deleteUser, updatePassword, countUser};
+export default {signup, login, createUser, getUser, updateUser, getAllUsers, deleteUser, updatePassword, countUser, resetPass};
 
 

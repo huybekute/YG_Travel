@@ -115,8 +115,20 @@ const router = createRouter({
     {
       path: '/thong-tin-tai-khoan',
       name: 'thong-tin-tai-khoan',
-      component: () => import('../views/Profile.vue'),
+      component: () => import('../views/Account/Profile.vue'),
       meta: { title: 'Thông tin tài khoản' }
+    },
+    {
+      path: '/sua-thong-tin',
+      name: 'sua-thong-tin',
+      component: () => import('../views/Account/EditProfile.vue'),
+      meta: { title: 'Sửa thông tin' }
+    },
+    {
+      path: '/doi-mat-khau',
+      name: 'doi-mat-khau',
+      component: () => import('../views/Account/ChangePassword.vue'),
+      meta: { title: 'Đổi mật khẩu' }
     },
   ],
   scrollBehavior(to, from, savePosition){

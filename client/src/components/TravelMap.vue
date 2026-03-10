@@ -15,9 +15,8 @@
         <div class="flex items-center pointer-events-auto h-full" >
             <div class="group flex flex-col items-center justify-center bg-white border border-l-0 border-gray-200 shadow-lg 
                 rounded-r-2xl w-8 h-24 cursor-pointer hover:bg-green-300 transition-all duration-300" 
-                @click="toggleTravelMap">
-                <i class="fa-solid fa-chevron-right text-gray-600 transition-transform duration-500"
-                    :class="{ 'rotate-180': isShowTravelMap }"></i>
+                @click="toggleTravelMap" v-if="!isShowTravelMap">
+                <i class="fa-solid fa-chevron-right text-gray-600 transition-transform duration-500"></i>
                 
                 <div class="absolute bottom-4 flex flex-col gap-1 opacity-20 group-hover:opacity-100 transition-opacity">
                     <div class="w-1 h-1 bg-gray-400 rounded-full"></div>
@@ -26,7 +25,7 @@
             </div>
 
             <Transition name="slide">
-                <div v-if="isShowTravelMap" class="ml-4 bg-transparent backdrop-blur-[5px] shadow-2xl rounded-3xl p-6 border border-gray-100 
+                <div v-if="isShowTravelMap" class="ml-4 bg-transparent backdrop-blur-[10px] shadow-2xl rounded-3xl p-6 border border-gray-100 
                 overflow-auto max-h-[95vh]">
                     <div class="flex justify-between items-center mb-4">
                         <svg width="600" height="600" viewBox="0 0 700 700" fill="none" xmlns="http://www.w3.org/2000/svg" >
@@ -152,7 +151,4 @@
         transform: translateX(-100px);
     }
 
-    .rotate-180 {
-        transform: rotate(180deg);
-    }
 </style>
