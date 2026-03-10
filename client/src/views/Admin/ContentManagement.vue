@@ -242,6 +242,72 @@
         }
     }
     
+    // quan ly anh
+    const isImageModalOpen = ref(false);
+    const isUploading = ref(false);
+    const currentImages = ref([]); 
+    const targetLocation = ref(null); 
+    const selectedFiles = ref({});
+    const imageDescription = ref('');
+
+    // load anh cua dia diem
+    const openImageManager = async (location) => {
+        targetLocation.value = location;
+        isImageModalOpen.value = true;
+        await fetchLocationImages(location.locationID);
+    };
+
+    const fetchLocationImages = async (locationID) => {
+        try {
+            const res = await apiService.get(`/image/location/${locationID}`);
+            currentImages.value = res.data;
+        } catch (err) {
+            console.error("Lỗi lấy danh sách ảnh:", err);
+        }
+    };
+
+    // xu ly khi chon anh tu may tinh
+    const onFileSelected = (event) => {
+        selectedFiles.value = Array.from(event.target.files);
+    };
+
+    // upload anh
+    const handleUploadImage = async () => {
+        if (selectedFiles.value.length === 0) return alert("Phải chọn ảnh");
+        
+        isUploading.value = true;
+        const formData = new FormData();
+        selectedFiles.value.forEach(file => {
+            formData.append('images', file); 
+        });
+        formData.append('locationID', targetLocation.value.locationID);
+        formData.append('description', imageDescription.value);
+
+        try {
+            await apiService.post('/image', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            await fetchLocationImages(targetLocation.value.locationID); 
+            selectedFiles.value = [];
+            imageDescription.value = '';
+        } catch (err) {
+            alert("Lỗi upload: " + (err.response?.data?.message || err.message));
+        } finally {
+            isUploading.value = false;
+        }
+    };
+
+    // xoa anh
+    const deleteImage = async (imageID) => {
+        if(!confirm("Xóa ảnh này là mất luôn đó, chắc chưa ní")) return;
+        try {
+            await apiService.delete(`/image/${imageID}`);
+            currentImages.value = currentImages.value.filter(img => img.imageID !== imageID);
+        } catch (err) {
+            alert("Lỗi xóa ảnh");
+        }
+    };
+
 </script>
 
 <template>
@@ -294,6 +360,9 @@
                     <button @click="deleteLocation(location.locationID)" title="Xóa" class="p-2 text-red-500 rounded-lg transition-colors cursor-pointer">
                         <i class="fa-solid fa-trash"></i>
                     </button>
+                    <button @click="openImageManager(location)" title="Quản lý ảnh" class="p-2 text-green-500 rounded-lg hover:bg-green-50 transition-colors cursor-pointer">
+                        <i class="fa-solid fa-images"></i>
+                    </button>
                 </div>
             </div>
         </div>
@@ -310,6 +379,7 @@
                 class="px-4 py-2 border rounded-lg hover:bg-gray-100 disabled:opacity-50 cursor-pointer">Tiếp</button>
             </div>
         </div>
+        
     </div>
 
     <!-- Form them dia diem -->
@@ -396,5 +466,55 @@
                 <button type="submit" @click="updateLocation" class="px-6 py-2 bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700 shadow-md">Cập nhật thay đổi</button>
             </div>
         </div>
+    </div>
+
+    <!-- Form them anh -->
+    <div v-if="isImageModalOpen" class="fixed inset-0 z-[60] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/20" @click="isImageModalOpen = false"></div>
+        <div class="bg-white rounded-2xl shadow-2xl z-10 w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+            <div class="p-6 border-b flex justify-between items-center">
+                <h3 class="text-xl font-bold text-gray-800">Album ảnh: {{ targetLocation?.name }}</h3>
+                <button @click="isImageModalOpen = false" class="text-gray-400 hover:text-red-500 text-2xl">&times;</button>
+            </div>
+
+            <div class="p-6 overflow-y-auto flex-1">
+                <div class="mb-8 p-4 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-400 mb-1 uppercase">Chọn ảnh</label>
+                            <input type="file" @change="onFileSelected" accept="image/*" class="text-sm text-gray-500 file:mr-4 
+                            file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-green-50
+                             file:text-green-700 hover:file:bg-green-100 cursor-pointer w-full" multiple/>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-400 mb-1 uppercase">Mô tả ảnh</label>
+                            <input v-model="imageDescription" type="text" placeholder="Nhập mô tả..." class="w-full border rounded-lg px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-green-500"/>
+                        </div>
+                        <button @click="handleUploadImage" :disabled="isUploading" class="bg-green-600 text-white px-6 py-2 rounded-lg font-bold text-sm hover:bg-green-700 disabled:opacity-50">
+                            {{ isUploading ? 'Đang tải...' : 'Upload' }}
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                    <div v-for="img in currentImages" :key="img.imageID" class="group relative aspect-square rounded-xl overflow-hidden bg-gray-100 border">
+                        <img :src="img.imageURL" class="w-full h-full object-cover" />
+                        <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <button @click="deleteImage(img.imageID)" class="p-2 text-red-500">
+                                <i class="fa-solid fa-trash text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div v-if="currentImages.length === 0" class="col-span-full py-10 text-center text-gray-400">
+                        Chưa có ảnh nào cho địa điểm này.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="text-red-500 ml-5 flex mb-10">
+        <p>Ảnh của các địa điểm được lưu trên clouldinary
+            <a href="https://console.cloudinary.com/app/c-c97c604e6dac79dc2ca32d239feff8/assets/media_library/folders/ce6c9520c8890c047661d167770e84597d?view_mode=mosaic" 
+            class="text-blue-500 underline" target="blank">Tại đây</a></p>
     </div>
 </template>

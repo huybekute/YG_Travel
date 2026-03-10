@@ -1,46 +1,84 @@
 import connection from "../config/db.js"
-
+import cloudinary from "../config/cloudinary.js";
 //thêm anh
 const addImage = (req, res) => {
-    let { locationID, imageURL, description } = req.body;
-    if( !imageURL || !locationID){
-        return res.status(400).json({message : "Vui lòng nhập đầy đủ thông tin"})
+    const { locationID, description } = req.body;
+    const files = req.files; 
+
+    if (!files || files.length === 0 || !locationID) {
+        return res.status(400).json({ message: "Vui lòng chọn ít nhất 1 ảnh và địa điểm!" });
     }
 
-    const sql = "INSERT INTO image_locations (locationID, imageURL, description ) VALUES (?, ?, ?)";
-    connection.query(sql, [locationID, imageURL, description], (err, result) => {
-        if(err){
-            if (err.code === 'ER_NO_REFERENCED_ROW_2') {
-                return res.status(400).json({ message: "ID địa điểm không tồn tại" });
+    const uploadedImages = [];
+    let uploadCount = 0;
+    // duyet qua tung tam de upload
+    files.forEach((file) => {
+        cloudinary.uploader.upload_stream(
+            { 
+                folder: 'locations',
+                upload_preset: 'YG_Travel_Preset' 
+            }, 
+            (error, result) => {
+                uploadCount++;
+
+                if (error) {
+                    console.error("Lỗi upload 1 hinh", error);
+                } else {
+                    uploadedImages.push([locationID, result.secure_url, description]);
+                }
+                if (uploadCount === files.length) {
+                    if (uploadedImages.length === 0) {
+                        return res.status(500).json({ message: "Không có ảnh nào upload thành công!" });
+                    }
+                    const sql = "INSERT INTO image_locations (locationID, imageURL, description) VALUES ?";
+                    connection.query(sql, [uploadedImages], (err, dbResult) => {
+                        if (err) {
+                            if (err.code === 'ER_NO_REFERENCED_ROW_2') {
+                                return res.status(400).json({ message: "ID địa điểm không tồn tại" });
+                            }
+                            return res.status(500).json({ message: "Lỗi lưu Database", err });
+                        }
+
+                        res.status(201).json({
+                            message: `Thêm thành công ${uploadedImages.length} ảnh!`,
+                            count: uploadedImages.length
+                        });
+                    });
+                }
             }
-            if(err.code === 'ER_DUP_ENTRY') {
-                return res.status(409).json({message : "Ảnh đã tồn tại"});
-            }
-            return res.status(500).json({message : "Lỗi DB"});
-        }
-        res.status(201).json({
-            message : "Thêm ảnh thành công",
-            imageID: result.insertId
-        })
-    })
-}
+        ).end(file.buffer);
+    });
+};
 
 // xoa ảnh
 
 const deleteImage = (req, res) => {
     const { id } = req.params;
-    const sql = "DELETE FROM image_locations WHERE imageID = ?"
-    connection.query(sql, [id], (err, result) => {
-        if(err) {
-            if(err.code === 'ER_ROW_IS_REFERENCED_2'){
-                return res.status(409).json({message : "Không thể xóa vì đang là khóa ngoại"});
-            }
-            return res.status(500).json({message : "Lỗi xóa"});
+    const findSql = "SELECT imageURL FROM image_locations WHERE imageID = ?";
+    connection.query(findSql, [id], async (err, result) => {
+        if (err || result.length === 0) return res.status(404).json({ message: "Không tìm thấy ảnh" });
+
+        const imageUrl = result[0].imageURL;
+        
+        // lay publicid va url
+        const parts = imageUrl.split('/');
+        const folderAndFile = parts[parts.length - 2] + '/' + parts[parts.length - 1].split('.')[0];
+
+        try {
+            //xoa tren cloud
+            await cloudinary.uploader.destroy(folderAndFile);
+            
+            // 3. Xóa trong Database
+            const sql = "DELETE FROM image_locations WHERE imageID = ?";
+            connection.query(sql, [id], (err) => {
+                if (err) return res.status(500).json({ message: "Lỗi xóa DB" });
+                return res.status(200).json({ message: "Xóa sạch cả DB và Cloud!" });
+            });
+        } catch (cloudErr) {
+            return res.status(500).json({ message: "Lỗi khi gọi lên Cloudinary" });
         }
-        if(result.affectedRows === 0) return res.status(404).json({message : "Không tìm thấy ảnh"});
-        return res.status(200).json({message : "Xóa ảnh thành công"})
-    })
-}
+    });
+};
 
 
 //lay anh
@@ -61,7 +99,7 @@ const getImage = (req, res) => {
 //lay tat ca ảnh
 
 const getAllImages = (req, res) => {
-    const sql = "SELECT * FROM image_locations"
+    const sql = "SELECT * FROM image_locations ORDER BY imageID DESC"
     connection.query(sql, (err, result) => {
         if(err){
             return res.status(500).json({message : "Lỗi truy vấn"});
@@ -74,23 +112,18 @@ const getAllImages = (req, res) => {
 const updateImage = (req, res) => {
     const { id } = req.params;
     const { locationID, imageURL, description } = req.body;
-    if (!imageURL || !imageURL.trim() || !locationID) {
-        return res.status(400).json({message: "URL không được trống"});
+    
+    if (!imageURL || !locationID) {
+        return res.status(400).json({message: "Thông tin không được trống"});
     }
+    
     const sql = "UPDATE image_locations SET locationID = ? , imageURL = ?, description = ? WHERE imageID = ?";
     connection.query(sql, [locationID, imageURL, description, id], (err, result) => {
-        if(err){
-            if (err.code === 'ER_NO_REFERENCED_ROW_2') {
-                return res.status(400).json({ message: "ID địa điểm không tồn tại" });
-            }
-            if(err.code === 'ER_DUP_ENTRY'){
-                return res.status(409).json({message: "Ảnh đã tồn tại"});
-            }
+        if(err) {
+            if (err.code === 'ER_NO_REFERENCED_ROW_2') return res.status(400).json({ message: "ID địa điểm không tồn tại" });
             return res.status(500).json({message : "Lỗi truy vấn"});
         }
-        if(result.affectedRows === 0){
-            return res.status(404).json({message : "Không tìm thấy ảnh với id này"});
-        }
+        if(result.affectedRows === 0) return res.status(404).json({message : "Không tìm thấy ảnh"});
         return res.status(200).json({message : "Cập nhật thành công"});
     })
 }
