@@ -28,11 +28,11 @@ class UserRequest(BaseModel):
 @app.post("/recommendation")
 def get_recommendation(request: UserRequest):
     try:
-        df_recommen = recommendation(request.query, index, all_chunks, encode_sentences, num_chunk=50)
+        df_recommen = recommendation(request.query, index, all_chunks, encode_sentences, num_chunk=100)
         final_ans = gemini_reponse(request.query, df_recommen)
         return {
-            "answer": df_recommen.to_dict(orient='records'),
-            # "answer" : final_ans, 
+            # "answer": df_recommen.to_dict(orient='records'),
+            "answer" : final_ans, 
             "place": df_recommen.iloc[0]['Địa điểm'] if not df_recommen.empty else "N/A",
         }
     

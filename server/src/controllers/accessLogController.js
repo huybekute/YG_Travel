@@ -1,4 +1,5 @@
 import connection from "../config/db.js"
+import jwt from "jsonwebtoken"
 
 //ghi luot truy cap
 const saveLog = (req, res) => {
@@ -11,6 +12,7 @@ const saveLog = (req, res) => {
         res.status(201).json({message: "Đã ghi nhận lượt truy cập"})
     })
 }
+
 
 const getLogStat = (req, res) => {
     const sql = "SELECT COUNT(*) as total FROM access_logs";

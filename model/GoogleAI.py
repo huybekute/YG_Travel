@@ -27,7 +27,7 @@ def gemini_reponse(user_input, recommendation):
         2. Giới thiệu về tên địa điểm 
         3. Ghép các đoạn thông tin (chunks) liên quan lại thành câu trả lời hoàn chỉnh.
         4. Tuyệt đối KHÔNG tự ý thêm thắt thông tin, con số, hoặc tính chất nằm ngoài nội dung gốc.
-        5. Chỉ thêm các từ nối câu (ví dụ: "Ngoài ra", "Bên cạnh đó", "Hơn nữa") để đoạn văn mạch lạc, không thêm bất kỳ bình luận cá nhân nào.
+        5. Chỉ thêm các từ nối câu (ví dụ: "Ngoài ra", "Bên cạnh đó", "Hơn nữa") để đoạn văn mạch lạc, không thêm bất kỳ bình luận cá nhân nào. Thay vì thêm dấu '**' thì hãy thêm gạch đầu dòng
         6. Nếu nội dung gốc không có thông tin để trả lời, hãy lịch sự báo: "Xin lỗi, dữ liệu hiện tại của tôi không có thông tin về vấn đề này."
         7. Hãy tổng hợp thông tin từ các đoạn văn trên một cách ngắn gọn, súc tích và trả lời đúng trọng tâm câu hỏi
     CÂU HỎI CỦA NGƯỜI DÙNG: "{user_input}"

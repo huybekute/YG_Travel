@@ -308,6 +308,59 @@
         }
     };
 
+
+    const isDetailModalOpen = ref(false);
+    const locationDetails = ref([]);
+    const targetDetailLocation = ref(null);
+    const newDetailEntry = ref({ section: '', content: '' });
+
+    const openDetailManager = async (location) => {
+        targetDetailLocation.value = location;
+        isDetailModalOpen.value = true;
+        await fetchLocationDetails(location.locationID);
+    };
+
+    //lay chi tiet dia diem
+    const fetchLocationDetails = async (locationID) => {
+        try {
+            const res = await apiService.get(`/location-detail/${locationID}`);
+            locationDetails.value = res.data;
+        } catch (err) {
+            console.error("Lỗi lấy chi tiết:", err);
+        }
+    };
+
+    // them chi tiet dia diem
+    const addDetail = async () => {
+        if (!newDetailEntry.value.section.trim() || !newDetailEntry.value.content.trim()) {
+            return alert("Vui lòng điền đầy đủ thông tin");
+        }
+
+        try {
+            await apiService.post('/location-detail/add', {
+                locationID: targetDetailLocation.value.locationID,
+                section: newDetailEntry.value.section,
+                content: newDetailEntry.value.content
+            });
+            newDetailEntry.value = { section: '', content: '' }; // reset form
+            await fetchLocationDetails(targetDetailLocation.value.locationID);
+        } catch (err) {
+            alert("Lỗi khi thêm chi tiết");
+            console.log(err)
+        }
+    };
+
+    // Xóa mục chi tiết
+    const deleteDetail = async (id) => {
+        if (!confirm("Bạn có chắc chắn muốn xóa")) return;
+        try {
+            await apiService.delete(`/location-detail/delete/${id}`);
+            locationDetails.value = locationDetails.value.filter(d => d.id !== id);
+        } catch (err) {
+            alert("Lỗi xóa chi tiết");
+        }
+    };
+
 </script>
 
 <template>
@@ -360,8 +413,11 @@
                     <button @click="deleteLocation(location.locationID)" title="Xóa" class="p-2 text-red-500 rounded-lg transition-colors cursor-pointer">
                         <i class="fa-solid fa-trash"></i>
                     </button>
-                    <button @click="openImageManager(location)" title="Quản lý ảnh" class="p-2 text-green-500 rounded-lg hover:bg-green-50 transition-colors cursor-pointer">
+                    <button @click="openImageManager(location)" title="Quản lý ảnh" class="p-2 text-green-500 rounded-lg transition-colors cursor-pointer">
                         <i class="fa-solid fa-images"></i>
+                    </button>
+                    <button @click="openDetailManager(location)" class="p-2 text-purple-600 rounded-lg cursor-pointer" title="Quản lý Tab chi tiết">
+                        <i class="fa-solid fa-rectangle-list"></i>
                     </button>
                 </div>
             </div>
@@ -479,7 +535,7 @@
 
             <div class="p-6 overflow-y-auto flex-1">
                 <div class="mb-8 p-4 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                    <div class="flex flex-col gap-4">
                         <div>
                             <label class="block text-xs font-bold text-gray-400 mb-1 uppercase">Chọn ảnh</label>
                             <input type="file" @change="onFileSelected" accept="image/*" class="text-sm text-gray-500 file:mr-4 
@@ -490,7 +546,7 @@
                             <label class="block text-xs font-bold text-gray-400 mb-1 uppercase">Mô tả ảnh</label>
                             <input v-model="imageDescription" type="text" placeholder="Nhập mô tả..." class="w-full border rounded-lg px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-green-500"/>
                         </div>
-                        <button @click="handleUploadImage" :disabled="isUploading" class="bg-green-600 text-white px-6 py-2 rounded-lg font-bold text-sm hover:bg-green-700 disabled:opacity-50">
+                        <button @click="handleUploadImage" :disabled="isUploading" class="bg-green-600 text-white px-6 py-2 rounded-lg font-bold text-sm hover:bg-green-700 disabled:opacity-50 w-3/10 items-center mx-auto">
                             {{ isUploading ? 'Đang tải...' : 'Upload' }}
                         </button>
                     </div>
@@ -512,6 +568,62 @@
             </div>
         </div>
     </div>
+
+    <!-- Form them chi tiet dia diem -->
+    <div v-if="isDetailModalOpen" class="fixed inset-0 z-[60] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/20" @click="isDetailModalOpen = false"></div>
+        <div class="bg-white rounded-2xl shadow-2xl z-10 w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
+            
+            <div class="p-5 border-b bg-purple-50 flex justify-between items-center">
+                <div>
+                    <h3 class="text-lg font-bold text-purple-900">Chi tiết địa điểm: {{ targetDetailLocation?.name }}</h3>
+                </div>
+                <button @click="isDetailModalOpen = false" class="text-gray-400 hover:text-red-500 text-2xl">&times;</button>
+            </div>
+
+            <div class="p-6 overflow-y-auto flex-1 space-y-6 custom-scrollbar">
+                
+                <div class="p-4 bg-gray-50 rounded-xl border-2 border-dashed border-purple-200 space-y-3">
+                    <h4 class="text-xs font-bold text-gray-500 uppercase flex items-center gap-2">
+                        <i class="fa-solid fa-circle-plus text-purple-500"></i> Thêm mục mới
+                    </h4>
+                    <input v-model="newDetailEntry.section" type="text" placeholder="Tiêu đề (VD: Lịch sử, Giá vé, Cách đi...)" 
+                        class="w-full border rounded-lg px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-purple-400"/>
+                    <textarea v-model="newDetailEntry.content" rows="4" placeholder="Nội dung.." 
+                        class="w-full border rounded-lg px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-purple-400"></textarea>
+                    <button @click="addDetail" class="w-full bg-purple-600 text-white py-2.5 rounded-lg font-bold hover:bg-purple-700 shadow-md transition-all active:scale-95">
+                        Lưu 
+                    </button>
+                </div>
+
+                <div class="space-y-3">
+                    <h4 class="text-xs font-bold text-gray-500 uppercase">Thông tin chi tết ({{ locationDetails.length }})</h4>
+                    <div v-if="locationDetails.length === 0" class="text-center py-10 text-gray-400 text-sm">
+                        Chưa có thông tin chi tiết cho địa điểm này
+                    </div>
+                    <div v-for="item in locationDetails" :key="item.id" 
+                         class="group border rounded-xl p-4 bg-white hover:border-purple-300 transition-all shadow-sm">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="px-2 py-1 bg-purple-100 text-purple-700 rounded text-[10px] font-bold uppercase">
+                                {{ item.section }}
+                            </span>
+                            <button @click="deleteDetail(item.id)" class="text-gray-300 hover:text-red-500 transition-colors">
+                                <i class="fa-solid fa-trash-can text-sm"></i>
+                            </button>
+                        </div>
+                        <p class="text-gray-600 text-xs line-clamp-3 leading-relaxed">{{ item.content }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 bg-gray-50 border-t flex justify-end">
+                <button @click="isDetailModalOpen = false" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg font-bold text-sm hover:bg-gray-300">
+                    Đóng
+                </button>
+            </div>
+        </div>
+    </div>
+    
     <div class="text-red-500 ml-5 flex mb-10">
         <p>Ảnh của các địa điểm được lưu trên clouldinary
             <a href="https://console.cloudinary.com/app/c-c97c604e6dac79dc2ca32d239feff8/assets/media_library/folders/ce6c9520c8890c047661d167770e84597d?view_mode=mosaic" 

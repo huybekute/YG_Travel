@@ -2,7 +2,9 @@
     import { ref, onMounted, onUnmounted, computed } from 'vue';
     import apiService from '@/services/APIService';
     import LocationCard from '@/components/LocationCard.vue';
+    import { useRouter } from 'vue-router'
 
+    const router = useRouter()
 
     // hieu ung thanh search
     const showSearch = ref(false);
@@ -147,16 +149,32 @@
     }
 
     // loc danh sach hien thi theo ID
-    const listLocationID = [33, 32, 31, 34]
+    const listLocationID = [43, 58, 41, 44]
     const popularLocation = computed(() => {
         return locations.value.filter(loc => listLocationID.includes(loc.locationID))
     })
+
 
     onMounted(() => {
         getAllProvinces();
         getAllCategories();
         getAllLocation();
     })
+
+    //xu ly thanh tim kiem
+
+    const selectedProvince = ref('')
+    const selectedCategory = ref('')
+
+    const searchLocation = () => {
+        router.push({
+            path: '/diem-den',
+            query: {
+                province: selectedProvince.value,
+                category: selectedCategory.value,
+            }
+        })
+    }
 </script>
 
 <template>
@@ -184,7 +202,7 @@
         <div class="flex gap-5 p-6 bg-white rounded-2xl mx-auto z-10 -mt-12 shadow-md border border-gray-100 transition-all duration-700 ease-out "
             :class="[showSearch ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-10 scale-95 pointer-events-none']">
             <div class="flex flex-col gap-2 w-48">
-                <select
+                <select v-model="selectedProvince"
                     class="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-green-500 transition-all cursor-pointer">
                     <option value="" disabled selected>Chọn điểm đến</option>
                     <option class="text-black" v-for="province in provinces" :key="province.provinceID"
@@ -193,7 +211,7 @@
             </div>
             <div class="border-r border-gray-200 px-5"></div>
             <div class="flex flex-col gap-2 w-48">
-                <select
+                <select v-model="selectedCategory"
                     class="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-green-500 transition-all cursor-pointer">
                     <option value="" disabled selected>Chủ đề</option>
                     <option class="text-black" v-for="category in categories" :key="category.categoryID"
@@ -212,7 +230,7 @@
             </div>
             <div class="border-r border-gray-200 px-5"></div>
             <div class="items-center flex">
-                <button class="px-4 py-2 text-sm bg-green-600 hover:bg-green-700 text-white rounded-full shadow-md transition-all
+                <button @click="searchLocation" class="px-4 py-2 text-sm bg-green-600 hover:bg-green-700 text-white rounded-full shadow-md transition-all
                 flex gap-2 items-center"><span>Tìm kiếm</span><i class="fa-solid fa-magnifying-glass text-sm"></i></button>
             </div>
         </div>

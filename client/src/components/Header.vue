@@ -64,8 +64,8 @@
                 active-class="bg-green-600 text-white">Trang Chủ</RouterLink>
                 <RouterLink to="/gioi-thieu" class="px-4 py-2 rounded-full transition-colors"
                 active-class="bg-green-600">Giới Thiệu</RouterLink>
-                <RouterLink to="/travel-map" class="px-4 py-2 rounded-full transition-colors"
-                active-class="bg-green-600 ">Travel Map</RouterLink>
+                <!-- <RouterLink to="/travel-map" class="px-4 py-2 rounded-full transition-colors"
+                active-class="bg-green-600 ">Travel Map</RouterLink> -->
                 <RouterLink to="/diem-den" class="px-4 py-2 rounded-full transition-colors"
                 active-class="bg-green-600">Điểm Đến</RouterLink>
                 <RouterLink to="/lien-he" class="px-4 py-2 rounded-full transition-colors"

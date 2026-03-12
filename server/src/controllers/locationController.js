@@ -45,7 +45,18 @@ const deleteLocation = (req, res) => {
 //lay dia diem
 const getLocation = (req, res) => {
     const { id } = req.params;
-    const sql = "SELECT * FROM locations WHERE locationID = ?";
+    // const sql = "SELECT * FROM locations WHERE locationID = ?";
+    const sql = `
+        SELECT 
+            L.*, 
+            P.name AS provinceName, 
+            C.name AS categoryName,
+            (SELECT imageURL FROM image_locations WHERE locationID = L.locationID LIMIT 1) AS avatar
+        FROM locations L 
+        JOIN provinces P ON L.provinceID = P.provinceID 
+        JOIN categories C ON L.categoryID = C.categoryID
+        WHERE L.locationID = ?
+    `;
     connection.query(sql, [id], (err, result) => {
         if(err){
             return res.status(500).json({message : "Lỗi truy vấn"});
@@ -60,7 +71,19 @@ const getLocation = (req, res) => {
 //lay tat ca dia diem
 
 const getAllLocations = (req, res) => {
-    const sql = "SELECT L.locationID, L.name, P.name AS provinceName, C.name AS categoryName, L.description FROM locations L JOIN provinces P ON L.provinceID = P.provinceID JOIN categories C ON L.categoryID = C.categoryID";
+    // const sql = "SELECT L.locationID, L.name, P.name AS provinceName, C.name AS categoryName, L.description FROM locations L JOIN provinces P ON L.provinceID = P.provinceID JOIN categories C ON L.categoryID = C.categoryID";
+    const sql = `
+        SELECT 
+            L.locationID, 
+            L.name, 
+            P.name AS provinceName, 
+            C.name AS categoryName, 
+            L.description,
+            (SELECT imageURL FROM image_locations WHERE locationID = L.locationID LIMIT 1) AS avatar
+        FROM locations L 
+        JOIN provinces P ON L.provinceID = P.provinceID 
+        JOIN categories C ON L.categoryID = C.categoryID
+    `;
     connection.query(sql, (err, result) => {
         if(err){
             return res.status(500).json({message : "Lỗi truy vấn"});

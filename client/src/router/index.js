@@ -97,6 +97,12 @@ const router = createRouter({
           name: 'dang-ky',
           component: () => import('../views/Auth/Signup.vue'),
           meta: { title: 'Đăng ký'}
+        },
+        {
+          path: 'quen-mat-khau',
+          name: 'quen-mat-khau',
+          component: () => import('../views/Auth/ForgotPassword.vue'),
+          meta: { title: 'Quên mật khẩu'}
         }
       ]
     },
@@ -130,6 +136,12 @@ const router = createRouter({
       component: () => import('../views/Account/ChangePassword.vue'),
       meta: { title: 'Đổi mật khẩu' }
     },
+    {
+      path: '/location/:id',
+      name: 'location-detail',
+      component: () => import('../components/LocationDetail.vue'),
+      meta: { title: 'Chi tiết địa điếm' }
+    }
   ],
   scrollBehavior(to, from, savePosition){
     return {top: 0}
@@ -140,18 +152,28 @@ const router = createRouter({
 router.afterEach((to) => {
   document.title = to.meta.title || 'YG Travel';
 
-  //ghi log so luot truy cap
-  if(!to.path.startsWith("/admin")){
-
-    const userID = localStorage.getItem('userID') || null;
-    apiService.post('/access-log', {
-      userID: userID,
-      pageURL: to.fullPath
-    }).catch(err => {
-      console.warn("Lỗi ghi log", err.message);
-    })
+  if (!to.path.startsWith("/admin")) {
+    
+    const NOW = Date.now();
+    const ONE_HOUR = 60 * 60 * 1000; 
+    
+    const storageKey = `log_time_${to.path}`;
+    const lastLogTime = localStorage.getItem(storageKey);
+    if (!lastLogTime || (NOW - lastLogTime) > ONE_HOUR) {
+      const userID = localStorage.getItem('userID') || null;
+      apiService.post('/access-log', {
+        userID: userID,
+        pageURL: to.fullPath
+      })
+      .then(() => {
+        localStorage.setItem(storageKey, NOW);
+      })
+      .catch(err => {
+        console.warn("Lỗi ghi log", err.message);
+      });
+    }
   }
-})
+});
 
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore();

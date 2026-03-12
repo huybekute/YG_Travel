@@ -123,7 +123,7 @@
                                     <input type="checkbox" id="showpassSignin" v-model="showPassSignin"/>
                                     <label for="showpassSignin" class="text-gray-600">Hiển thị mật khẩu</label>
                                 </div>
-                                <a href="" class="text-red-500 hover:text-red-600">Quên mật khẩu ?</a>
+                                <RouterLink to="/auth/quen-mat-khau" class="text-red-500 hover:text-red-600">Quên mật khẩu ?</RouterLink>
                             </div>
                         </div>
                         <div class="flex flex-col items-center">
