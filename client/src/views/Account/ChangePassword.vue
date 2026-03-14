@@ -99,8 +99,11 @@
                     <p class="w-1/3"></p>
                     <p v-if="passwordMatchError" class="text-red-500 text-sm">Mật khẩu không trùng khớp</p>
                 </div>
-                <div class="flex mx-auto mt-5">
-                    <button @click="changePass" class="bg-green-500 text-white rounded-sm p-2 cursor-pointer">Xác nhận</button>
+                <div class="flex mt-5 gap-10">
+                    <button @click="router.back()" class="bg-gray-200 text-gray-700 rounded-sm px-6 py-2 cursor-pointer 
+                       transition-colors">Hủy bỏ
+                    </button>
+                    <button @click="changePass" class="bg-green-500 mx-auto text-white rounded-sm p-2 cursor-pointer">Xác nhận</button>
                 </div>
             </div>
             <!-- <div class="border-b border-gray-200 mt-10 mb-5"></div> -->

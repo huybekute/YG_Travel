@@ -8,6 +8,7 @@ const router = express.Router()
 router.get("/countLocationByProvince", locationController.countLocationByProvince);
 router.get("/countLocationByCategory", locationController.countLocationByCategory);
 router.get("/getTopLocation", locationController.getTopLocation);
+router.get("/locationByProvince", locationController.getLocationsByProvince)
 router.get("/:id", locationController.getLocation);
 router.get("/", locationController.getAllLocations);
 

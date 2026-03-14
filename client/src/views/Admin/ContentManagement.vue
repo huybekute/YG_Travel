@@ -254,10 +254,11 @@
     const openImageManager = async (location) => {
         targetLocation.value = location;
         isImageModalOpen.value = true;
-        await fetchLocationImages(location.locationID);
+        await getLocationImage(location.locationID);
     };
-
-    const fetchLocationImages = async (locationID) => {
+    
+    //lay hinh anh
+    const getLocationImage = async (locationID) => {
         try {
             const res = await apiService.get(`/image/location/${locationID}`);
             currentImages.value = res.data;
@@ -272,7 +273,7 @@
     };
 
     // upload anh
-    const handleUploadImage = async () => {
+    const uploadImage = async () => {
         if (selectedFiles.value.length === 0) return alert("Phải chọn ảnh");
         
         isUploading.value = true;
@@ -290,6 +291,7 @@
             await fetchLocationImages(targetLocation.value.locationID); 
             selectedFiles.value = [];
             imageDescription.value = '';
+
         } catch (err) {
             alert("Lỗi upload: " + (err.response?.data?.message || err.message));
         } finally {
@@ -317,11 +319,11 @@
     const openDetailManager = async (location) => {
         targetDetailLocation.value = location;
         isDetailModalOpen.value = true;
-        await fetchLocationDetails(location.locationID);
+        await getLocationDetails(location.locationID);
     };
 
     //lay chi tiet dia diem
-    const fetchLocationDetails = async (locationID) => {
+    const getLocationDetails = async (locationID) => {
         try {
             const res = await apiService.get(`/location-detail/${locationID}`);
             locationDetails.value = res.data;
@@ -343,14 +345,14 @@
                 content: newDetailEntry.value.content
             });
             newDetailEntry.value = { section: '', content: '' }; // reset form
-            await fetchLocationDetails(targetDetailLocation.value.locationID);
+            await getLocationDetails(targetDetailLocation.value.locationID);
         } catch (err) {
             alert("Lỗi khi thêm chi tiết");
             console.log(err)
         }
     };
 
-    // Xóa mục chi tiết
+    // xoa chi tiet
     const deleteDetail = async (id) => {
         if (!confirm("Bạn có chắc chắn muốn xóa")) return;
         try {
@@ -358,6 +360,52 @@
             locationDetails.value = locationDetails.value.filter(d => d.id !== id);
         } catch (err) {
             alert("Lỗi xóa chi tiết");
+        }
+    };
+
+
+    // review manageemnt
+    const isReviewModalOpen = ref(false);
+    const locationReviews = ref([]);
+    const targetReviewLocation = ref(null);
+
+    const openReviewManager = async (location) => {
+        targetReviewLocation.value = location;
+        isReviewModalOpen.value = true;
+        await getLocationReviewForAdmin(location.locationID);
+    };
+
+    //lay review theo dia diem
+    const getLocationReviewForAdmin = async (locationID) => {
+        try {
+            const res = await apiService.get(`/review/admin/location/${locationID}`);
+            locationReviews.value = res.data;
+        } catch (err) {
+            console.error("Lỗi", err);
+        }
+    };
+
+    // xoa review
+    const deleteReview = async (reviewID) => {
+        if (!confirm("Bạn chắc chắn muốn xóa đánh giá này chứ?")) return;
+        try {
+            await apiService.delete(`/review/delete/${reviewID}`);
+            locationReviews.value = locationReviews.value.filter(r => r.reviewID !== reviewID);
+            await getAllLocations();
+        } catch (err) {
+            alert("Lỗi " + (err.response?.data?.message || err.message));
+        }
+    };
+
+    const toggleStatus = async (review) => {
+        const newStatus = review.status === 1 ? 0 : 1;
+        try {
+            await apiService.put(`/review/update/${review.reviewID}`, {
+                status: newStatus
+            });
+            review.status = newStatus;
+        } catch (err) {
+            alert("Lỗi: " + err);
         }
     };
 
@@ -406,7 +454,7 @@
                 <div class="flex-1 justify-center items-center flex">
                     <span class="py-1 font-medium line-clamp-2">{{ location.description }}</span>
                 </div>
-                <div class="w-1/5 flex justify-center gap-3">
+                <div class="w-1/5 flex justify-center gap-1">
                     <button @click="openUpdateModal(location)" title="Chỉnh sửa" class="p-2 text-blue-500 rounded-lg transition-colors cursor-pointer">
                         <i class="fa-solid fa-pen-to-square"></i>
                     </button>
@@ -418,6 +466,10 @@
                     </button>
                     <button @click="openDetailManager(location)" class="p-2 text-purple-600 rounded-lg cursor-pointer" title="Quản lý Tab chi tiết">
                         <i class="fa-solid fa-rectangle-list"></i>
+                    </button>
+                    <button @click="openReviewManager(location)" title="Quản lý đánh giá" 
+                        class="p-2 text-amber-500 rounded-lg transition-colors cursor-pointer">
+                        <i class="fa-solid fa-star"></i>
                     </button>
                 </div>
             </div>
@@ -546,7 +598,7 @@
                             <label class="block text-xs font-bold text-gray-400 mb-1 uppercase">Mô tả ảnh</label>
                             <input v-model="imageDescription" type="text" placeholder="Nhập mô tả..." class="w-full border rounded-lg px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-green-500"/>
                         </div>
-                        <button @click="handleUploadImage" :disabled="isUploading" class="bg-green-600 text-white px-6 py-2 rounded-lg font-bold text-sm hover:bg-green-700 disabled:opacity-50 w-3/10 items-center mx-auto">
+                        <button @click="uploadImage" :disabled="isUploading" class="bg-green-600 text-white px-6 py-2 rounded-lg font-bold text-sm hover:bg-green-700 disabled:opacity-50 w-3/10 items-center mx-auto">
                             {{ isUploading ? 'Đang tải...' : 'Upload' }}
                         </button>
                     </div>
@@ -615,11 +667,63 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <div class="p-4 bg-gray-50 border-t flex justify-end">
-                <button @click="isDetailModalOpen = false" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg font-bold text-sm hover:bg-gray-300">
-                    Đóng
-                </button>
+    <!-- Form review -->
+    <div v-if="isReviewModalOpen" class="fixed inset-0 z-[60] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/20" @click="isReviewModalOpen = false"></div>
+        <div class="bg-white rounded-2xl shadow-2xl z-10 w-full max-w-3xl max-h-[80vh] overflow-hidden flex flex-col">
+            
+            <div class="p-5 border-b bg-amber-50 flex justify-between items-center">
+                <div>
+                    <h3 class="text-lg font-bold text-amber-900">Đánh giá địa điểm: {{ targetReviewLocation?.name }}</h3>
+                    <p class="text-xs text-amber-700">Tổng cộng: {{ locationReviews.length }} lượt đánh giá</p>
+                </div>
+                <button @click="isReviewModalOpen = false" class="text-gray-400 hover:text-red-500 text-2xl">&times;</button>
+            </div>
+
+            <div class="p-6 overflow-y-auto flex-1 space-y-4 custom-scrollbar bg-gray-50">
+                <div v-if="locationReviews.length === 0" class="text-center py-20 text-gray-400">
+                    <i class="fa-regular fa-comment-dots text-4xl mb-3 block"></i>
+                    Chưa có đánh giá nào cho địa điểm này.
+                </div>
+                <div v-for="rev in locationReviews" :key="rev.reviewID" 
+                     class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex gap-4 group">
+                    <img :src="rev.avatar || 'https://ui-avatars.com/api/?name=' + rev.fullname" 
+                         class="w-12 h-12 rounded-full border shadow-sm object-cover">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="font-bold text-gray-800 text-sm">{{ rev.fullname }}</h4>
+                                <div class="flex gap-1 text-[10px] text-yellow-400">
+                                    <i v-for="s in 5" :key="s" :class="s <= rev.rating ? 'fa-solid fa-star' : 'fa-regular fa-star'"></i>
+                                </div>
+                            </div>
+                            <span class="text-[10px] text-gray-400 font-medium">
+                                {{ new Date(rev.createdAt).toLocaleDateString('vi-VN') }}
+                            </span>
+                        </div>
+                        <p class="text-gray-600 text-xs mt-2 leading-relaxed">
+                            "{{ rev.comment || 'Không có nội dung bình luận.' }}"
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-3 border-l pl-4">
+                        <div class="flex flex-col items-center gap-1">
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" :checked="rev.status === 1" @change="toggleStatus(rev)"class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                            </label>
+                            <span class="text-[9px] font-bold uppercase" :class="rev.status === 1 ? 'text-green-600' : 'text-gray-400'">
+                                {{ rev.status === 1 ? 'Hiện' : 'Ẩn' }}
+                            </span>
+                        </div>
+                        <button @click="deleteReview(rev.reviewID)" 
+                                class="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                                title="Xóa vĩnh viễn"><i class="fa-solid fa-trash-can text-sm"></i>
+                        </button>
+                    </div> 
+                </div>
             </div>
         </div>
     </div>

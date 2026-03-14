@@ -167,4 +167,32 @@ const getTopLocation = (req, res) => {
     });
 }
 
-export default { addLocation, deleteLocation, getLocation, getAllLocations, updateLocation, countLocationByProvince, countLocationByCategory, getTopLocation };
+// lay dia theo ten tinh (lam travel map)
+const getLocationsByProvince = (req, res) => {
+    const { provinceName } = req.query;
+    const sql = `
+        SELECT 
+            L.locationID, 
+            L.name, 
+            P.name AS provinceName, 
+            C.name AS categoryName, 
+            L.description,
+            (SELECT imageURL FROM image_locations WHERE locationID = L.locationID LIMIT 1) AS avatar,
+            ROUND(IFNULL(AVG(R.rating), 0), 1) AS avgRating,
+            COUNT(R.reviewID) AS totalReviews
+        FROM locations L 
+        JOIN provinces P ON L.provinceID = P.provinceID 
+        JOIN categories C ON L.categoryID = C.categoryID
+        LEFT JOIN reviews R ON L.locationID = R.locationID 
+        WHERE P.name = ?
+        GROUP BY L.locationID
+    `;
+    connection.query(sql, [provinceName], (err, result) => {
+        if (err) {
+            return res.status(500).json({ message: "Lỗi truy vấn" });
+        }
+        return res.status(200).json(result);
+    });
+};
+
+export default { addLocation, deleteLocation, getLocation, getAllLocations, updateLocation, countLocationByProvince, countLocationByCategory, getTopLocation, getLocationsByProvince };

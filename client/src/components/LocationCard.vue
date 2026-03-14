@@ -1,12 +1,5 @@
 <script setup>
     import { ref } from 'vue';
-import { RouterLink } from 'vue-router';
-
-    //hieu ung thich
-    const isLike = ref(false);
-    const toggleLike = () =>{
-        isLike.value = !isLike.value
-    }
 
     const props = defineProps({
         location: {
@@ -50,11 +43,6 @@ import { RouterLink } from 'vue-router';
             <p class="text-gray-600 text-sm line-clamp-5 mt-1">{{ location.description }}</p>
             <div class="flex items-center justify-between mt-4 pt-4 border-t border-gray-200">
                 <RouterLink :to="{ name: 'location-detail', params: { id: location.locationID } }" class="text-green-600 font-semibold text-sm hover:underline flex items-center gap-1">Chi tiết</RouterLink>
-               <button @click="toggleLike" class="flex items-center font-semibold text-sm transition-all duration-300 cursor-pointer select-none"
-                    :class="isLike ? 'text-red-500' : 'text-gray-400 hover:text-red-400'">
-                    <span>Yêu thích</span><i class="pl-2 transition-all duration-300 transform"
-                    :class="[isLike ? 'fa-solid fa-heart scale-125 text-red-500' : 'fa-regular fa-heart scale-100',]"></i>
-                </button>
             </div>
         </div>
     </div>
