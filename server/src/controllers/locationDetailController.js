@@ -47,4 +47,23 @@ const deleteLocationDetail = (req, res) => {
     });
 };
 
-export default { getDetailsByLocation, addLocationDetail, deleteLocationDetail}
+const updateLocationDetail = (req, res) => {
+    const { id } = req.params;
+    const { section, content } = req.body; 
+    if (!section || !content) {
+        return res.status(400).json({ message: "Vui lòng cung cấp đầy đủ Tiêu đề và Nội dung" });
+    }
+    const sql = "UPDATE location_details SET section = ?, content = ? WHERE id = ?";
+    connection.query(sql, [section, content, id], (err, result) => {
+        if (err) {
+            console.error("Lỗi cập nhật chi tiết:", err);
+            return res.status(500).json({ message: "Lỗi hệ thống khi cập nhật" });
+        }       
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: "Không tìm thấy mục chi tiết để cập nhật" });
+        }
+        return res.status(200).json({ message: "Cập nhật chi tiết thành công!" });
+    });
+};
+
+export default { getDetailsByLocation, addLocationDetail, deleteLocationDetail, updateLocationDetail}

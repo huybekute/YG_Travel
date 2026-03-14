@@ -26,17 +26,55 @@
 
             const resAlbum = await apiService.get(`/image/location/${id}`);
             album.value = resAlbum.data;
+
+            //review
+            await fetchReviews();
         } catch (err) {
             console.error("Lỗi lấy dữ liệu chi tiết:", err);
         } finally {
             loading.value = false;
         }
     };
+
     const copyLink = () => {
         navigator.clipboard.writeText(window.location.href);
     };
 
-onMounted(fetchAllData);
+    const reviews = ref([]);
+    const newReview = ref({ rating: 5, comment: '' });
+    const isSubmitting = ref(false);
+    // lay ds review
+    const fetchReviews = async () => {
+        const id = route.params.id;
+        try {
+            const res = await apiService.get(`/review/location/${id}`);
+            reviews.value = res.data;
+        } catch (err) {
+            console.error("Lỗi lấy đánh giá:", err);
+        }
+    };
+
+    //submit review
+    const submitReview = async () => {
+        isSubmitting.value = true;
+        try {
+            await apiService.post('/review/saveReview', {
+                locationID: route.params.id,
+                rating: newReview.value.rating,
+                comment: newReview.value.comment
+            });
+            newReview.value.comment = '';
+            newReview.value.rating = 5;
+            await fetchReviews();
+        } catch (err) {
+            const msg = err.response?.data?.message || "Vui lòng đăng nhập để đánh giá";
+            alert(msg);
+        } finally {
+            isSubmitting.value = false;
+        }
+    };
+
+    onMounted(fetchAllData);
 </script>
 
 <template>
@@ -72,29 +110,77 @@ onMounted(fetchAllData);
 
                 <div v-if="album.length > 0" class="">
                     <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                        <span class="w-1 h-8 bg-green-500 rounded-full"></span>Album ảnh</h2>
-                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                            <div v-for="(img, index) in album" :key="img.imageID">
-                                <a :href="'#view-img-' + index" class="group aspect-square rounded-2xl overflow-hidden shadow-md 
-                                block border-2 border-white hover:border-green-500 transition-all cursor-zoom-in">
-                                    <img :src="img.imageURL" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
-                                </a>
-                                <div :id="'view-img-' + index" class="lightbox">
-                                    <a href="#" class="lightbox-overlay"></a>
-                                    <div class="lightbox-content">
-                                        <a v-if="index > 0" :href="'#view-img-' + (index - 1)" class="nav-btn prev-btn">
-                                            <i class="fa-solid fa-chevron-left"></i></a>
-                                        <img :src="img.imageURL" class="big-img">
-                                        <a v-if="index < album.length - 1" :href="'#view-img-' + (index + 1)" class="nav-btn next-btn">
-                                            <i class="fa-solid fa-chevron-right"></i></a>
-                                        <p v-if="img.description" class="img-caption">{{ img.description }}</p>
-                                    </div>
+                    <span class="w-1 h-8 bg-green-500 rounded-full"></span>Album ảnh</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        <div v-for="(img, index) in album" :key="img.imageID">
+                            <a :href="'#view-img-' + index" class="group aspect-square rounded-2xl overflow-hidden shadow-md 
+                            block border-2 border-white hover:border-green-500 transition-all cursor-zoom-in">
+                                <img :src="img.imageURL" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                            </a>
+                            <div :id="'view-img-' + index" class="lightbox">
+                                <a href="#" class="lightbox-overlay"></a>
+                                <div class="lightbox-content">
+                                    <a v-if="index > 0" :href="'#view-img-' + (index - 1)" class="nav-btn prev-btn">
+                                        <i class="fa-solid fa-chevron-left"></i></a>
+                                    <img :src="img.imageURL" class="big-img">
+                                    <a v-if="index < album.length - 1" :href="'#view-img-' + (index + 1)" class="nav-btn next-btn">
+                                        <i class="fa-solid fa-chevron-right"></i></a>
+                                    <p v-if="img.description" class="img-caption">{{ img.description }}</p>
                                 </div>
                             </div>
                         </div>
                     </div>
-            </div>
+                </div>
+                <div class="pt-10 border-t border-gray-100">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-8 flex items-center gap-2">
+                        <span class="w-1 h-8 bg-green-500 rounded-full"></span>Đánh giá từ cộng đồng
+                    </h2>
 
+                    <div class="bg-gray-50 p-6 rounded-2xl mb-10">
+                        <h3 class="font-bold text-gray-700 mb-4">Chia sẻ trải nghiệm của bạn</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm text-gray-500 mr-2"></span>
+                                <div class="flex gap-1">
+                                    <button v-for="star in 5" :key="star" @click="newReview.rating = star"
+                                        class="text-2xl transition-transform active:scale-125">
+                                        <i :class="star <= newReview.rating ? 'fa-solid fa-star text-yellow-400' : 'fa-regular fa-star text-gray-300'"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <textarea v-model="newReview.comment" rows="3" 
+                                class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none text-sm"
+                                placeholder="Cảm nhận của bạn về địa điểm này..."></textarea>
+                            <button @click="submitReview" :disabled="isSubmitting"
+                                class="bg-green-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-green-700 transition-all disabled:opacity-50">
+                                {{ isSubmitting ? 'Đang gửi...' : 'Gửi đánh giá' }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div v-if="reviews.length === 0" class="text-center py-10 text-gray-400">
+                            Chưa có đánh giá nào. Hãy là người đầu tiên!
+                        </div>
+                        <div v-for="rev in reviews" :key="rev.reviewID" class="flex gap-4 p-4 hover:bg-gray-50 rounded-2xl 
+                        transition-colors">
+                            <img src="../../public/avtUser.jpg" class="w-12 h-12 rounded-full object-cover border border-gray-100"> 
+                            <div class="flex-1">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h4 class="font-bold text-gray-800 text-sm">{{ rev.fullname }}</h4>
+                                        <div class="flex gap-1 text-[10px] text-yellow-400 my-1">
+                                            <i v-for="s in rev.rating" :key="s" class="fa-solid fa-star"></i>
+                                        </div>
+                                    </div>
+                                    <span class="text-[10px] text-gray-400">{{ new Date(rev.createdAt).toLocaleDateString('vi-VN') }}</span>
+                                </div>
+                                <p class="text-gray-600 text-sm mt-2 leading-relaxed">{{ rev.comment }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>    
+            </div>
             <div class="space-y-6">
                 <div class="bg-green-100 p-8 rounded-md border border-green-100 shadow-sm sticky top-24">
                     <p class="text-sm text-green-700 mb-8 leading-relaxed ">
@@ -137,7 +223,6 @@ onMounted(fetchAllData);
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 </template>

@@ -15,21 +15,23 @@ def gemini_reponse(user_input, recommendation):
     if recommendation.empty:
         return "Xin lỗi, tôi không tìm thấy địa điểm phù hợp"
     
-    place_name = recommendation.iloc[0]['Địa điểm']
+    # place_name = recommendation.iloc[0]['Địa điểm']
+    place_name = ", ".join(recommendation['Địa điểm'].unique().tolist())
     context = "\n".join(recommendation['Thông tin liên quan'].tolist())
 
     prompt = f"""
     Ní là trợ lý du lịch thông minh của YG Travel.
     NGỮ CẢNH HỆ THỐNG:
     - Nếu người dùng CHÀO HỎI (ví dụ: "Hi", "Chào bạn", "Hello"): Hãy chào lại một cách thân thiện, ngắn gọn và giới thiệu bạn có thể giúp gì về thông tin du lịch. 
-    - Nếu người dùng HỎI VỀ ĐỊA ĐIỂM/THÔNG TIN thì không cần chào hỏi mà thực hiện các nội dung dưới đây:
+    - Nếu người dùng HỎI VỀ ĐỊA ĐIỂM/THÔNG TIN thì KHÔNG cần chào hỏi mà thực hiện các nội dung dưới đây:
         1. Sử dụng DUY NHẤT nội dung từ NỘI DUNG GỐC dưới đây:{context}
-        2. Giới thiệu về tên địa điểm 
+        2. Giới thiệu về tên địa điểm { place_name }
         3. Ghép các đoạn thông tin (chunks) liên quan lại thành câu trả lời hoàn chỉnh.
         4. Tuyệt đối KHÔNG tự ý thêm thắt thông tin, con số, hoặc tính chất nằm ngoài nội dung gốc.
-        5. Chỉ thêm các từ nối câu (ví dụ: "Ngoài ra", "Bên cạnh đó", "Hơn nữa") để đoạn văn mạch lạc, không thêm bất kỳ bình luận cá nhân nào. Thay vì thêm dấu '**' thì hãy thêm gạch đầu dòng
+        5. Chỉ thêm các từ nối câu (ví dụ: "Ngoài ra", "Bên cạnh đó", "Hơn nữa") để đoạn văn mạch lạc, không thêm bất kỳ bình luận cá nhân nào.
         6. Nếu nội dung gốc không có thông tin để trả lời, hãy lịch sự báo: "Xin lỗi, dữ liệu hiện tại của tôi không có thông tin về vấn đề này."
-        7. Hãy tổng hợp thông tin từ các đoạn văn trên một cách ngắn gọn, súc tích và trả lời đúng trọng tâm câu hỏi
+        7. Hãy tổng hợp thông tin từ các đoạn văn trên một cách ngắn gọn, súc tích và trả lời đúng trọng tâm câu hỏi.
+        8. Tuyệt đối không dùng ký tự * hoặc **. 
     CÂU HỎI CỦA NGƯỜI DÙNG: "{user_input}"
     """
 

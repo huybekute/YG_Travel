@@ -110,7 +110,9 @@
                 </div>
                 <div v-for="(msg, index) in chatHistory" :key="index" :class="['max-w-[85%] p-3 rounded-2xl text-sm shadow-sm border transition-all whitespace-pre-line', 
                     msg.role === 'user' ? 'self-end bg-blue-600 text-white rounded-br-none border-blue-500' 
-                    : 'self-start bg-white text-gray-800 rounded-bl-none border-gray-100']">{{ msg.text }}
+                    : 'self-start bg-white text-gray-800 rounded-bl-none border-gray-100']">
+                    <div v-if="msg.role === 'dora'" v-html="msg.text"></div>
+                    <div v-else>{{ msg.text }}</div>
                 </div>
                 <!-- loading -->
                 <div v-if="isLoad" class="self-start flex gap-1 ml-2 items-center">

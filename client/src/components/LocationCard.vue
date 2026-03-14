@@ -15,6 +15,11 @@ import { RouterLink } from 'vue-router';
         }
     });
 
+    const displayRating = (val) => {
+        const num = parseFloat(val);
+        return isNaN(num) || num === 0 ? '0.0' : num.toFixed(1);
+    };
+
 </script>
 
 <template>
@@ -28,6 +33,13 @@ import { RouterLink } from 'vue-router';
                     class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 cursor-pointer" 
                     :alt="location.name">
             </RouterLink>
+            <div class="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg shadow-md flex items-center gap-1">
+                    <span class="text-xs font-bold text-gray-800">{{ displayRating(location.avgRating) }}</span>
+                    <i class="fa-solid fa-star text-[10px] text-yellow-500"></i>
+            </div>
+            <span class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-green-700 text-xs font-bold px-3 py-1 
+            rounded-full shadow-sm">
+            {{ location.categoryName }}</span>
         </div>
         <div class="p-5 flex flex-col gap-2">
             <h1 class="text-xl font-bold text-gray-800 group-hover:text-green-600 transition-colors">{{ location.name }}</h1>

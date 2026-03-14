@@ -8,7 +8,7 @@ import locationRoutes from "./src/routes/locationRoutes.js"
 import imageLocationRoutes from "./src/routes/imageLocationRoutes.js"
 import createRootAccount from "./src/seed/rootAccount.js"
 import accessLogRoutes from "./src/routes/accessLogRoutes.js"
-import favoriteListRoutes from "./src/routes/favoriteListRoutes.js"
+import reviewRoutes from "./src/routes/reviewRoutes.js"
 import locationDetailRoutes from "./src/routes/locationDetailsRoutes.js"
 
 const app = express()
@@ -21,7 +21,7 @@ app.use('/api/category', categoryRoutes)
 app.use('/api/location', locationRoutes)
 app.use('/api/image', imageLocationRoutes)
 app.use('/api/access-log', accessLogRoutes)
-app.use('/api/favorite-list', favoriteListRoutes)
+app.use('/api/review', reviewRoutes)
 app.use('/api/location-detail', locationDetailRoutes)
 
 await createRootAccount();

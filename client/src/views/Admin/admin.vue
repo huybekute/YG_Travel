@@ -21,7 +21,7 @@
                     <h1 class="text-2xl px-5 font-bold">Admin</h1>
                 </div>
                 <div class="flex items-center gap-5 px-3">
-                    <img src="../../../public/avtAdmin.jpg" class="w-16 h-16 rounded-full object-cover border-4
+                    <img src="../../../public/avtUser.jpg" class="w-16 h-16 rounded-full object-cover border-4
                      border-white shadow-md">
                     <h1>Xin chào,<br/> {{ authStore.username }}</h1>
                 </div>

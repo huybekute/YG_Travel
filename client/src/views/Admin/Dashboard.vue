@@ -4,7 +4,7 @@
 
     const countLocation = ref(0);
     const countUser = ref(0);
-    const countFavorite = ref(0);
+    const countReview = ref(0);
     const countView = ref(0);
     const countLocationByProvince = ref([]);
     const countLocationByCategory = ref([]);
@@ -26,9 +26,9 @@
             }
 
             //tk luot yeu thich
-            const resFavorite = await apiService.get("/favorite-list/stats");
-            if(resFavorite.data){
-                countFavorite.value = resFavorite.data.total;
+            const resReview = await apiService.get("/review/stats");
+            if(resReview.data){
+                countReview.value = resReview.data.total;
             }
 
             //tk view
@@ -123,8 +123,8 @@
             </div>
 
             <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-red-500">
-                <h1 class="text-gray-500 text-sm font-bold uppercase">Tổng lượt yêu thích</h1>
-                <p class="text-3xl font-semibold text-gray-800">{{ countFavorite }}</p>
+                <h1 class="text-gray-500 text-sm font-bold uppercase">Tổng lượt đánh giá</h1>
+                <p class="text-3xl font-semibold text-gray-800">{{ countReview }}</p>
             </div>
 
             <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-yellow-500">
@@ -163,17 +163,18 @@
         <!-- Top dia diem duoc yeu thich nhat -->
         <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-red-500 flex flex-col flex-1">
             <h2 class="text-gray-700 text-lg font-bold uppercase mb-6 flex items-center gap-2">
-                <i class="fa-solid fa-fire text-red-500"></i> Top Địa Điểm Được Yêu Thích Nhất</h2>
+                <i class="fa-solid fa-fire text-red-500"></i> Top Địa Điểm Được Đánh Giá Cao Nhất</h2>
             <div class="space-y-4">
                 <div v-for="(loc, index) in topFavorites" :key="index" 
                     class="flex items-center justify-between p-3 bg-gray-50 rounded-lg transition-all group">
                     <div class="flex items-center gap-3 overflow-hidden">
                         <span class="font-bold text-gray-300">#{{ index + 1 }}</span>
                         <p class="text-sm font-medium text-gray-700 truncate w-48">{{ loc.name }}</p>
+                        <p class="text-[10px] text-gray-400">{{ loc.totalReviews }} lượt đánh giá</p>
                     </div>
                     <div class="flex items-center text-red-500 font-bold">
-                        <span class="text-sm">{{ loc.favoriteCount }}</span>
-                        <i class="fa-solid fa-heart ml-1 text-[10px]"></i>
+                        <span class="text-sm">{{ loc.avgRating }}</span>
+                        <i class="fa-solid fa-star ml-1 text-[10px]"></i>
                     </div>
                 </div>
             </div>

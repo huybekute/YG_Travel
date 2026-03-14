@@ -68,6 +68,8 @@
                 active-class="bg-green-600 ">Travel Map</RouterLink> -->
                 <RouterLink to="/diem-den" class="px-4 py-2 rounded-full transition-colors"
                 active-class="bg-green-600">Điểm Đến</RouterLink>
+                <RouterLink to="/tin-tuc" class="px-4 py-2 rounded-full transition-colors"
+                active-class="bg-green-600">Tin Tức</RouterLink>
                 <RouterLink to="/lien-he" class="px-4 py-2 rounded-full transition-colors"
                 active-class="bg-green-600">Liên Hệ</RouterLink>
             </div>

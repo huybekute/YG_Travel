@@ -79,10 +79,13 @@ const getAllLocations = (req, res) => {
             P.name AS provinceName, 
             C.name AS categoryName, 
             L.description,
-            (SELECT imageURL FROM image_locations WHERE locationID = L.locationID LIMIT 1) AS avatar
+            (SELECT imageURL FROM image_locations WHERE locationID = L.locationID LIMIT 1) AS avatar,
+            ROUND(IFNULL(AVG(R.rating), 0), 1) AS avgRating,
+            COUNT(R.reviewID) AS totalReviews
         FROM locations L 
         JOIN provinces P ON L.provinceID = P.provinceID 
         JOIN categories C ON L.categoryID = C.categoryID
+        LEFT JOIN reviews R ON L.locationID = R.locationID GROUP BY L.locationID
     `;
     connection.query(sql, (err, result) => {
         if(err){
@@ -144,10 +147,22 @@ const countLocationByCategory = (req, res) => {
 
 //top dia diem duoc yeu thich nhat
 const getTopLocation = (req, res) => {
-    const sql = `SELECT l.name, COUNT(f.locationID) AS favoriteCount FROM locations l LEFT JOIN favorite_lists f ON l.locationID = f.locationID 
-                GROUP BY l.locationID, l.name ORDER BY favoriteCount DESC LIMIT 5`;
+    const sql = `
+        SELECT 
+            l.name, 
+            ROUND(AVG(r.rating), 1) AS avgRating, 
+            COUNT(r.reviewID) AS totalReviews 
+        FROM locations l 
+        INNER JOIN reviews r ON l.locationID = r.locationID 
+        WHERE r.status = 1
+        GROUP BY l.locationID, l.name 
+        ORDER BY avgRating DESC, totalReviews DESC 
+        LIMIT 5`;
     connection.query(sql, (err, result) => {
-        if (err) return res.status(500).json({ message: "Lỗi tìm kiếm" });
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ message: "Lỗi lấy top địa điểm" });
+        }
         res.status(200).json(result);
     });
 }

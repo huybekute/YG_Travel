@@ -12,9 +12,9 @@ const router = createRouter({
       meta: { title: 'Trang chủ' }
     },
     {
-      path: '/travel-map',
-      name: 'travel',
-      component: () => import('../views/TravelMap.vue'),
+      path: '/tin-tuc',
+      name: 'news',
+      component: () => import('../views/News.vue'),
       meta: { title: 'Travel Map' }
     },
     {
