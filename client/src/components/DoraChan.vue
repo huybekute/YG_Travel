@@ -11,6 +11,8 @@
     const chatContainer = ref(null);
     const isAdminPage = computed(() => route.path.startsWith('/admin'));
 
+    const selectProvince = ref("glb")
+
     // tu dong cuon xuong duoi khung chat
     const scrollToBottom = async () => {
         await nextTick();
@@ -38,14 +40,14 @@
         userMsg.value = '';
    
         try{
-            const res = await apiModel.post("/recommendation", { query: messageToSend});
+            const res = await apiModel.post("/recommendation", { query: messageToSend, province: selectProvince.value});
             let doraRes = "";
             if(res.data && res.data.answer){
                 doraRes = res.data.answer
             }
 
             else {
-                doraRes = "Dora không tìm thấy thông tin phù hợp trong sách hướng dẫn.";
+                doraRes = "Dora không tìm thấy thông tin.";
             }
             chatHistory.value.push({ role: 'dora', text: doraRes });
         }
@@ -77,7 +79,6 @@
         }
     }
 
-
     onMounted(() =>{
         getAllLocation();
     })
@@ -86,6 +87,21 @@
     watch(chatHistory, () => {
         scrollToBottom();
     }, { deep: true });
+
+    // Cho phep TravelMap goi toi
+    const openChatWithProvince = (provinceName) => {
+        selectProvince.value = provinceName; 
+        isChatOpen.value = true;               
+        
+        chatHistory.value.push(
+            { role: 'dora', text: `Chào mừng bạn đến với ${provinceName}! Bạn muốn trải nghiệm gì tại địa điểm này` }
+        )
+    };
+
+    // Cho phep ben ngoai goi 
+    defineExpose({
+        openChatWithProvince
+    });
 
 </script>
 
@@ -106,7 +122,7 @@
             </div>
             <div ref="chatContainer" class="flex-1 p-4 overflow-y-auto bg-gray-50 flex flex-col gap-3">
                 <div class="self-start bg-white p-3 rounded-2xl rounded-bl-none shadow-sm text-sm max-w-[85%] border border-gray-100">
-                    <p>Chào bạn, Dora Chan có thể giúp gì cho bạn?</p>
+                    <p>Chào bạn, Dora có thể hỗ trợ thông tin gì cho bạn? Hãy chọn một tỉnh trên bản đồ để Dora hỗ trợ bạn tốt hơn nhé!</p>
                 </div>
                 <div v-for="(msg, index) in chatHistory" :key="index" :class="['max-w-[85%] p-3 rounded-2xl text-sm shadow-sm border transition-all whitespace-pre-line', 
                     msg.role === 'user' ? 'self-end bg-blue-600 text-white rounded-br-none border-blue-500' 

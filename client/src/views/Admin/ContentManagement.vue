@@ -1,6 +1,7 @@
 <script setup>
     import { ref, onMounted, computed, watch } from 'vue';
     import apiService from '@/services/APIService';
+    import Toast from '../../utils/swal.js'
 
     //loc danh sach   
     const searchQuery = ref('');
@@ -47,7 +48,7 @@
 
         for(let i=1; i<=total; i++){
             if(i===1 || i===total || (i >= current - range && i <= current + range)) page.push(i)
-            else if(i=== current - range - 1 || current + range + 1) page.push("...")
+            else if(i === current - range - 1 || i === current + range + 1) page.push("...")
         }
 
         return page.filter((item, index, arr) => item !== "..." || arr[index - 1] !== "...");
@@ -149,7 +150,7 @@
 
     const addLocation = async () => {
         if(!newLocation.value.locationName.trim() || !newLocation.value.provinceID || !newLocation.value.categoryID) {
-            alert("Vui lòng nhập đầy đủ thông tin!");
+            Toast.warningToast('', 'Vui lòng nhập đầy đủ thông tin')
             return;
         }
 
@@ -161,23 +162,8 @@
         }
         catch(err) {
             const status = err.response?.status
-            const message = err.response?.data?.message
-
-            if(status === 400){
-                alert(message)
-            }
-
-            else if(status === 409){
-                alert(message)
-            }
-
-            else if(status === 500){
-                alert(message)
-            }
-
-            else {
-                alert("Lỗi hệ thống. Vui lòng thử lại sau")
-            }
+            const message = err.response?.data?.message || "Đã có lỗi xảy ra, vui lòng thử lại!";
+            Toast.errorToast('Lỗi', message)
         }
     };
 
@@ -191,13 +177,8 @@
         }
         catch(err){
             const status = err.response?.status
-            const message = err.response?.data?.message
-            if(status === 409 || status === 500){
-                alert(message)
-            }
-            else{
-                alert("Lỗi xóa " + err);
-            }
+            const message = err.response?.data?.message || "Đã có lỗi xảy ra, vui lòng thử lại!";
+            Toast.errorToast('Lỗi', message)
         }
     }
     
@@ -232,13 +213,8 @@
         }
         catch(err){
             const status = err.response?.status
-            const message = err.response?.data?.message
-            if(status === 400 || status === 409 || status === 500 || status === 404) {
-                alert(message)
-            }      
-            else{
-                alert("Lỗi hệ thống: " + err);
-            }
+            const message = err.response?.data?.message || "Đã có lỗi xảy ra, vui lòng thử lại!";
+            Toast.errorToast('Lỗi', message)
         }
     }
     
@@ -276,6 +252,7 @@
     const uploadImage = async () => {
         if (selectedFiles.value.length === 0) return alert("Phải chọn ảnh");
         
+        
         isUploading.value = true;
         const formData = new FormData();
         selectedFiles.value.forEach(file => {
@@ -288,12 +265,12 @@
             await apiService.post('/image', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
-            await fetchLocationImages(targetLocation.value.locationID); 
+            await getLocationImage(targetLocation.value.locationID); 
             selectedFiles.value = [];
             imageDescription.value = '';
 
         } catch (err) {
-            alert("Lỗi upload: " + (err.response?.data?.message || err.message));
+            Toast.errorToast('Lỗi upload', (err.response?.data?.message || err.message))
         } finally {
             isUploading.value = false;
         }
@@ -301,12 +278,12 @@
 
     // xoa anh
     const deleteImage = async (imageID) => {
-        if(!confirm("Xóa ảnh này là mất luôn đó, chắc chưa ní")) return;
+        if (!(await (Toast.confirmRequestToast('warning', 'Xác nhận xóa', 'Bạn có chắc chắn muốn xóa ảnh này'))).isConfirmed) return;
         try {
             await apiService.delete(`/image/${imageID}`);
             currentImages.value = currentImages.value.filter(img => img.imageID !== imageID);
         } catch (err) {
-            alert("Lỗi xóa ảnh");
+            Toast.errorToast('Lỗi', 'Lỗi xóa ảnh')
         }
     };
 
@@ -335,7 +312,7 @@
     // them chi tiet dia diem
     const addDetail = async () => {
         if (!newDetailEntry.value.section.trim() || !newDetailEntry.value.content.trim()) {
-            return alert("Vui lòng điền đầy đủ thông tin");
+            return Toast.warningToast('', 'Vui lòng điền đầy đủ thông tin')
         }
 
         try {
@@ -347,19 +324,18 @@
             newDetailEntry.value = { section: '', content: '' }; // reset form
             await getLocationDetails(targetDetailLocation.value.locationID);
         } catch (err) {
-            alert("Lỗi khi thêm chi tiết");
-            console.log(err)
+            Toast.errorToast('Lỗi', err)
         }
     };
 
     // xoa chi tiet
     const deleteDetail = async (id) => {
-        if (!confirm("Bạn có chắc chắn muốn xóa")) return;
+        if (!(await (Toast.confirmRequestToast('warning', 'Xác nhận xóa', 'Bạn có chắc chắn muốn xóa'))).isConfirmed) return;
         try {
             await apiService.delete(`/location-detail/delete/${id}`);
             locationDetails.value = locationDetails.value.filter(d => d.id !== id);
         } catch (err) {
-            alert("Lỗi xóa chi tiết");
+            Toast.errorToast('Lỗi')
         }
     };
 
@@ -380,6 +356,7 @@
         try {
             const res = await apiService.get(`/review/admin/location/${locationID}`);
             locationReviews.value = res.data;
+            console.log(locationReviews)
         } catch (err) {
             console.error("Lỗi", err);
         }
@@ -387,13 +364,13 @@
 
     // xoa review
     const deleteReview = async (reviewID) => {
-        if (!confirm("Bạn chắc chắn muốn xóa đánh giá này chứ?")) return;
+        if (!(await (Toast.confirmRequestToast('warning', 'Xác nhận xóa', 'Bạn có chắc chắn muốn xóa'))).isConfirmed) return;
         try {
             await apiService.delete(`/review/delete/${reviewID}`);
             locationReviews.value = locationReviews.value.filter(r => r.reviewID !== reviewID);
             await getAllLocations();
         } catch (err) {
-            alert("Lỗi " + (err.response?.data?.message || err.message));
+            Toast.errorToast('Lỗi', (err.response?.data?.message || err.message))    
         }
     };
 
@@ -405,7 +382,7 @@
             });
             review.status = newStatus;
         } catch (err) {
-            alert("Lỗi: " + err);
+            Toast.errorToast('Lỗi', err)
         }
     };
 
@@ -690,12 +667,12 @@
                 </div>
                 <div v-for="rev in locationReviews" :key="rev.reviewID" 
                      class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex gap-4 group">
-                    <img :src="rev.avatar || 'https://ui-avatars.com/api/?name=' + rev.fullname" 
+                    <img :src="rev.avatar || 'https://ui-avatars.com/api/?name=' + rev.fullname " 
                          class="w-12 h-12 rounded-full border shadow-sm object-cover">
                     <div class="flex-1 min-w-0">
                         <div class="flex justify-between items-start">
                             <div>
-                                <h4 class="font-bold text-gray-800 text-sm">{{ rev.fullname }}</h4>
+                                <h4 class="font-bold text-gray-800 text-sm">{{ rev.fullname || rev.username }}</h4>
                                 <div class="flex gap-1 text-[10px] text-yellow-400">
                                     <i v-for="s in 5" :key="s" :class="s <= rev.rating ? 'fa-solid fa-star' : 'fa-regular fa-star'"></i>
                                 </div>

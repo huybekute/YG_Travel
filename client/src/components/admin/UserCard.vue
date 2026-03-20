@@ -1,6 +1,7 @@
 <script setup>
   import apiService from '@/services/APIService';
   import { ref, watch } from 'vue';
+  import Toast from "../../utils/swal.js"
   
     const props = defineProps({
         user: {
@@ -12,7 +13,7 @@
     const emit = defineEmits(['user-delete', 'user-update']);
 
     const deleteUser = async () => {
-      if(!confirm("Bạn có chắc chắn muốn xóa người dùng này")) return;
+        if (!(await (Toast.confirmRequestToast('warning', 'Xác nhận xóa', 'Bạn có chắc chắn muốn xóa người dùng này'))).isConfirmed) return;
       try{
         const res = await apiService.delete(`/user/${props.user.userID}` );
         if(res.status === 200 ){

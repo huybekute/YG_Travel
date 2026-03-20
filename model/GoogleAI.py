@@ -25,7 +25,7 @@ def gemini_reponse(user_input, recommendation):
     - Nếu người dùng CHÀO HỎI (ví dụ: "Hi", "Chào bạn", "Hello"): Hãy chào lại một cách thân thiện, ngắn gọn và giới thiệu bạn có thể giúp gì về thông tin du lịch. 
     - Nếu người dùng HỎI VỀ ĐỊA ĐIỂM/THÔNG TIN thì KHÔNG cần chào hỏi mà thực hiện các nội dung dưới đây:
         1. Sử dụng DUY NHẤT nội dung từ NỘI DUNG GỐC dưới đây:{context}
-        2. Giới thiệu về tên địa điểm { place_name }
+        2. Giới thiệu về tên địa điểm { place_name } bằng tiếng Việt
         3. Ghép các đoạn thông tin (chunks) liên quan lại thành câu trả lời hoàn chỉnh.
         4. Tuyệt đối KHÔNG tự ý thêm thắt thông tin, con số, hoặc tính chất nằm ngoài nội dung gốc.
         5. Chỉ thêm các từ nối câu (ví dụ: "Ngoài ra", "Bên cạnh đó", "Hơn nữa") để đoạn văn mạch lạc, không thêm bất kỳ bình luận cá nhân nào.

@@ -2,8 +2,12 @@
     import { ref, onMounted } from 'vue';
     import { useRoute } from 'vue-router';
     import apiService from '@/services/APIService';
+    import { useRouter } from 'vue-router';
+    import Swal from 'sweetalert2';
 
     const route = useRoute();
+    const router = useRouter();
+
     const location = ref(null);
     const album = ref([]);
     const loading = ref(true);
@@ -67,8 +71,19 @@
             newReview.value.rating = 5;
             await fetchReviews();
         } catch (err) {
-            const msg = err.response?.data?.message || "Vui lòng đăng nhập để đánh giá";
-            alert(msg);
+            Swal.fire({
+                icon: 'warning',
+                title: 'Bạn chưa đăng nhập!',
+                text: "Vui lòng đăng nhập để chia sẻ trải nghiệm",
+                confirmButtonColor: '#2563eb',
+                confirmButtonText: 'Đăng nhập ngay', 
+                showCancelButton: true, 
+                cancelButtonText: 'Để sau',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    router.push('/auth/dang-nhap'); 
+                }
+            });
         } finally {
             isSubmitting.value = false;
         }
@@ -104,7 +119,8 @@
                     <h2 class="text-2xl font-medium text-gray-800 mb-4 flex items-center gap-2">
                         <span class="w-1 h-8 bg-green-500 rounded-full"></span> {{ item.section }}</h2>
                     <div class="text-gray-600 leading-relaxed text-lg whitespace-pre-wrap text-justify">
-                        {{ item.content.replaceAll('\\t', '\t') }}
+                        <!-- {{ item.content.replaceAll('\\t', '\t') }} -->
+                          <div v-html="item.content.replaceAll('\\t', '\t')"></div>
                     </div>
                 </div>
 
@@ -133,7 +149,7 @@
                 </div>
                 <div class="pt-10 border-t border-gray-100">
                     <h2 class="text-2xl font-bold text-gray-800 mb-8 flex items-center gap-2">
-                        <span class="w-1 h-8 bg-green-500 rounded-full"></span>Đánh giá từ cộng đồng
+                        <span class="w-1 h-8 bg-green-500 rounded-full"></span>Đánh giá về địa điểm này
                     </h2>
 
                     <div class="bg-gray-50 p-6 rounded-2xl mb-10">
@@ -152,7 +168,7 @@
                                 class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none text-sm"
                                 placeholder="Cảm nhận của bạn về địa điểm này..."></textarea>
                             <button @click="submitReview" :disabled="isSubmitting"
-                                class="bg-green-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-green-700 transition-all disabled:opacity-50">
+                                class="bg-green-600 text-white px-8 py-3 rounded-md font-bold hover:bg-green-700 transition-all disabled:opacity-50">
                                 {{ isSubmitting ? 'Đang gửi...' : 'Gửi đánh giá' }}
                             </button>
                         </div>
@@ -168,7 +184,7 @@
                             <div class="flex-1">
                                 <div class="flex justify-between items-start">
                                     <div>
-                                        <h4 class="font-bold text-gray-800 text-sm">{{ rev.fullname }}</h4>
+                                        <h4 class="font-bold text-gray-800 text-sm">{{ rev.fullname || rev.username }}</h4>
                                         <div class="flex gap-1 text-[10px] text-yellow-400 my-1">
                                             <i v-for="s in rev.rating" :key="s" class="fa-solid fa-star"></i>
                                         </div>

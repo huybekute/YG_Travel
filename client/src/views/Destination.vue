@@ -89,10 +89,10 @@
             <div class="flex flex-col lg:flex-row gap-8">
                 <div class="w-full lg:w-1/4">
                     <div class="bg-white p-6 rounded-3xl shadow-sm sticky top-24 border border-gray-100">
-                        <div class="flex items-center gap-2 mb-8 pb-4 border-b">
+                        <!-- <div class="flex items-center gap-2 mb-8 pb-4 border-b">
                             <i class="fa-solid fa-sliders text-green-600"></i>
                             <h3 class="font-bold text-gray-800 uppercase tracking-wider text-sm">Bộ lọc tìm kiếm</h3>
-                        </div>
+                        </div> -->
                         <div class="mb-6">
                             <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 ml-1">Tên địa điểm</label>
                             <div class="relative">

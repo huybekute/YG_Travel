@@ -4,6 +4,7 @@
     import useAuthStore from '@/stores/authStore';
     import { useRouter } from 'vue-router';
     import { onMounted } from 'vue';
+    import Toast from "../../utils/swal.js"
 
 
     const router = useRouter()
@@ -47,6 +48,9 @@
             const res = await apiService.post('/user/login', userData);
             
             authStore.login(res.data);
+
+            // hien thi thong bao
+            Toast.topEndToast('success', 'Đăng nhập thành công')
             if(authStore.isAdmin){
                 await router.push("/admin");
             }
@@ -54,26 +58,14 @@
                 await router.push("/");
             }
         }
-        catch(error){
-            const status = error.response?.status;
-            const message = error.response?.data?.message;
+            catch(error){
+                const status = error.response?.status;
+                const message = error.response?.data?.message || "Lỗi hệ thống vui lòng thử lại sau";
 
-            if(status === 500) {
-                alert(message);
-            }
+                Toast.errorToast('Đăng nhập thất bại', message)
 
-            else if(status === 400) {
-                alert(message);
-            }
 
-            else if(status === 404) {
-                alert(message);
             }
-
-            else{
-                alert("Lỗi hệ thống vui lòng thử lại sau");
-            }
-        }
     }
 
     watch(usernameSignin, validateUsername);

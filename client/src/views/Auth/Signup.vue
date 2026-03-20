@@ -3,6 +3,7 @@
     import apiService from '@/services/APIService';
     import { useRouter } from 'vue-router';
     import useAuthStore from '@/stores/authStore';
+    import Toast from "../../utils/swal.js"
 
 
     const router = useRouter();
@@ -94,6 +95,7 @@
             const res = await apiService.post('/user/signup',  userData);
             console.log(res.data);
 
+            Toast.topEndToast('success', 'Đăng ký thành công')
             authStore.login(res.data);
             await router.push("/");
         }
@@ -101,15 +103,7 @@
             const status = error.response?.status;
             const message = error.response?.data?.message;
 
-            if (status === 409) {
-                alert(message); 
-            } 
-            else if (status === 400) {
-                alert(message);
-            }
-            else {
-                alert("Lỗi hệ thống, vui lòng thử lại sau");
-            }
+            Toast.errorToast('Đăng ký thất bại', message);
         }
     }
 

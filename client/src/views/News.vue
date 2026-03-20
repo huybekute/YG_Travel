@@ -1,72 +1,114 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 
-const featuredNews = ref({
-  id: 1,
-  title: "Top 10 địa điểm không thể bỏ qua tại Hà Giang mùa hoa tam giác mạch",
-  summary: "Khám phá vẻ đẹp hùng vĩ của cao nguyên đá Đồng Văn và những cánh đồng hoa tím lịm trải dài khắp các sườn đồi...",
-  category: "Cẩm nang du lịch",
-  image: "https://vtv1.mediacdn.vn/2019/11/11/hagiang-15734444585141258602956.jpg",
-});
-
-const newsList = ref([
+// Giả lập dữ liệu bài viết (Sau này bạn sẽ lấy từ API)
+const posts = ref([
+  {
+    id: 1,
+    title: "Hành trình khám phá 13 tỉnh miền Tây sông nước",
+    excerpt: "Miền Tây không chỉ có gạo trắng nước trong mà còn có những con người hậu hỷ, những cánh đồng sen ngát hương...",
+    author: "Huy Nguyễn",
+    date: "15/03/2026",
+    category: "Trải nghiệm",
+    image: "https://images.unsplash.com/photo-1589782182703-2aad67281b22?auto=format&fit=crop&q=80&w=800",
+  },
   {
     id: 2,
-    title: "YG Travel ra mắt tour du lịch trải nghiệm văn hóa bản địa mới",
-    summary: "Hành trình đưa du khách đến gần hơn với đời sống thường nhật của người dân vùng cao...",
-    date: "14/03/2024",
-    views: 1240,
-    image: "https://image.vietnam.travel/sites/default/files/styles/top_banner/public/2022-10/Travel%20Information%20Center.jpg?itok=y0XG0X9s"
+    title: "Top 5 món ăn phải thử khi đến Cần Thơ",
+    excerpt: "Bánh cống, nem nướng Cái Răng hay lẩu mắm là những hương vị mà bạn không thể nào quên khi ghé thăm thủ phủ miền Tây.",
+    author: "YG Travel",
+    date: "12/03/2026",
+    category: "Ẩm thực",
+    image: "https://images.unsplash.com/photo-1562602833-0f4ab2fc46e3?auto=format&fit=crop&q=80&w=800",
   },
-  // Thêm các bài viết khác ở đây
+  {
+    id: 3,
+    title: "Kinh nghiệm du lịch Phú Quốc tự túc từ A-Z",
+    excerpt: "Làm sao để đi Phú Quốc với chi phí rẻ nhất? Nên ở đâu, chơi gì? Hãy cùng khám phá lịch trình 3 ngày 2 đêm cực chi tiết.",
+    author: "Dora Chan",
+    date: "10/03/2026",
+    category: "Cẩm nang",
+    image: "https://images.unsplash.com/photo-1505968409348-bd000797c92e?auto=format&fit=crop&q=80&w=800",
+  }
 ]);
+
+const categories = ["Tất cả", "Trải nghiệm", "Ẩm thực", "Cẩm nang", "Lịch trình"];
+const activeCategory = ref("Tất cả");
 </script>
+
 <template>
-  <div class="bg-gray-50 min-h-screen py-16">
-    <div class="container mx-auto px-4">
-      <div class="text-center mb-16">
-        <h1 class="text-4xl font-bold text-gray-800 mb-4">Tin Tức & Cẩm Nang Du Lịch</h1>
-        <div class="w-24 h-1 bg-green-500 mx-auto rounded-full"></div>
-      </div>
+  <div class="min-h-screen bg-gray-50 pt-24 pb-12">
+    <header class="max-w-7xl mx-auto px-6 mb-12 text-center">
+      <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">YG Travel Blog</h1>
+      <p class="text-gray-600 max-w-2xl mx-auto">
+        Nơi chia sẻ những câu chuyện hành trình, kinh nghiệm du lịch và vẻ đẹp của con người miền Tây.
+      </p>
+    </header>
 
-      <div v-if="featuredNews" class="mb-16 group cursor-pointer">
-        <div class="bg-white rounded-[2rem] overflow-hidden shadow-sm border border-gray-100 flex flex-col lg:flex-row">
-          <div class="lg:w-2/3 overflow-hidden">
-            <img :src="featuredNews.image" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
-          </div>
-          <div class="lg:w-1/3 p-10 flex flex-col justify-center">
-            <span class="text-green-600 font-bold text-sm uppercase mb-4">{{ featuredNews.category }}</span>
-            <h2 class="text-3xl font-bold text-gray-800 mb-4 group-hover:text-green-600 transition-colors">
-              {{ featuredNews.title }}
-            </h2>
-            <p class="text-gray-600 mb-6 line-clamp-3">{{ featuredNews.summary }}</p>
-            <router-link :to="'/news/' + featuredNews.id" class="text-gray-800 font-bold flex items-center gap-2">
-              Đọc thêm <i class="fa-solid fa-arrow-right text-sm"></i>
-            </router-link>
-          </div>
-        </div>
+    <div class="max-w-7xl mx-auto px-6 mb-10 overflow-x-auto">
+      <div class="flex justify-center gap-4 min-w-max">
+        <button 
+          v-for="cat in categories" :key="cat"
+          @click="activeCategory = cat"
+          :class="activeCategory === cat ? 'bg-green-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-100'"
+          class="px-6 py-2 rounded-full font-medium transition-all shadow-sm border border-gray-100"
+        >
+          {{ cat }}
+        </button>
       </div>
+    </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <div v-for="post in newsList" :key="post.id" class="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-xl transition-all group">
-          <div class="aspect-video overflow-hidden">
-            <img :src="post.image" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-          </div>
-          <div class="p-6">
-            <div class="flex items-center gap-4 mb-3 text-xs text-gray-400 font-medium">
-              <span><i class="fa-regular fa-calendar mr-1"></i> {{ post.date }}</span>
-              <span><i class="fa-regular fa-eye mr-1"></i> {{ post.views }} lượt xem</span>
-            </div>
-            <h3 class="text-xl font-bold text-gray-800 mb-3 line-clamp-2 group-hover:text-green-600">
-              {{ post.title }}
-            </h3>
-            <p class="text-gray-500 text-sm line-clamp-3 mb-4">{{ post.summary }}</p>
-            <router-link :to="'/news/' + post.id" class="inline-block text-green-600 font-bold text-sm">
-              Xem chi tiết
-            </router-link>
-          </div>
+    <main class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <article 
+        v-for="post in posts" :key="post.id"
+        class="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-300 group"
+      >
+        <div class="relative h-56 overflow-hidden">
+          <img 
+            :src="post.image" 
+            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+          >
+          <span class="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-lg text-xs font-bold text-green-700">
+            {{ post.category }}
+          </span>
         </div>
-      </div>
+
+        <div class="p-6">
+          <div class="flex items-center gap-2 text-xs text-gray-400 mb-3">
+            <span>{{ post.date }}</span>
+            <span>•</span>
+            <span>{{ post.author }}</span>
+          </div>
+          <h2 class="text-xl font-bold text-gray-800 mb-3 group-hover:text-green-600 transition-colors">
+            {{ post.title }}
+          </h2>
+          <p class="text-gray-600 text-sm line-clamp-3 leading-relaxed mb-6">
+            {{ post.excerpt }}
+          </p>
+          
+          <router-link 
+            :to="'/blog/' + post.id"
+            class="flex items-center gap-2 text-green-600 font-bold text-sm hover:gap-4 transition-all"
+          >
+            Đọc tiếp <i class="fa-solid fa-arrow-right"></i>
+          </router-link>
+        </div>
+      </article>
+    </main>
+
+    <div class="flex justify-center mt-16 gap-2">
+      <button class="w-10 h-10 flex items-center justify-center rounded-xl bg-white border border-gray-200 text-gray-400">1</button>
+      <button class="w-10 h-10 flex items-center justify-center rounded-xl bg-green-600 text-white shadow-lg shadow-green-200">2</button>
+      <button class="w-10 h-10 flex items-center justify-center rounded-xl bg-white border border-gray-200 text-gray-400">3</button>
     </div>
   </div>
 </template>
+
+<style scoped>
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+</style>

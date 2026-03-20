@@ -22,7 +22,7 @@ const saveReview = (req, res) => {
 const getReviewsByLocation = (req, res) => {
     const locationID = req.params.id; 
     const sql = `
-        SELECT r.*, u.fullname
+        SELECT r.*, u.fullname, u.username
         FROM reviews r 
         JOIN users u ON r.userID = u.userID 
         WHERE r.locationID = ? AND r.status = 1
@@ -38,7 +38,7 @@ const getReviewsByLocation = (req, res) => {
 const getReviewsByLocationForAdmin = (req, res) => {
     const locationID = req.params.id; 
     const sql = `
-        SELECT r.*, u.fullname
+        SELECT r.*, u.fullname, u.username
         FROM reviews r 
         JOIN users u ON r.userID = u.userID 
         WHERE r.locationID = ?
