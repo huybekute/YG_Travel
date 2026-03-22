@@ -30,11 +30,15 @@
 
     const emit = defineEmits(['select-province']);
     const selectID = ref("");
+    const selecProvince = ref('');
 
-    const onSelectProvince = (name) => {
+    const onSelectProvince = (name, fullProvinceName) => {
         selectID.value = name
+        selecProvince.value = name
         emit('select-province', name);
     }
+
+    
     
 </script>
 

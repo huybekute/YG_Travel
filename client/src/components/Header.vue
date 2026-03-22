@@ -3,6 +3,7 @@
   import { useRoute } from 'vue-router';
   import { useRouter } from 'vue-router';
   import useAuthStore from '@/stores/authStore'
+  import apiService from '@/services/APIService';
   
   const route = useRoute()
   const router = useRouter()
@@ -43,8 +44,18 @@
   const isAdminPage = computed(() => route.path.startsWith('/admin'));
   const isHomePage = computed(() => route.path === '/')
 
+  const blogCategories = ref([])
+  const getBlogCategory = async () => {
+    try {
+        const res = await apiService.get("/blog-category");
+        blogCategories.value = res.data;
+    } 
+    catch (err) {
+        console.log(err);
+    }
+  };
 
-
+  onMounted(getBlogCategory)
 </script>
 
 <template>
@@ -68,10 +79,25 @@
                 active-class="bg-green-600 ">Travel Map</RouterLink> -->
                 <RouterLink to="/diem-den" class="px-4 py-2 rounded-full transition-colors"
                 active-class="bg-green-600">Điểm Đến</RouterLink>
-                <RouterLink to="/tin-tuc" class="px-4 py-2 rounded-full transition-colors"
-                active-class="bg-green-600">Tin Tức</RouterLink>
                 <RouterLink to="/lien-he" class="px-4 py-2 rounded-full transition-colors"
                 active-class="bg-green-600">Liên Hệ</RouterLink>
+                <!-- <RouterLink to="/blog" class="px-4 py-2 rounded-full transition-colors"
+                active-class="bg-green-600">Tin Tức</RouterLink> -->
+                <div class="relative group">
+                  <RouterLink to="/blog" class="px-4 py-2 rounded-full transition-colors flex items-center gap-1"
+                      active-class="bg-green-600">
+                      Blog <span class="text-xs transition-transform group-hover:rotate-180">▼</span>
+                  </RouterLink>
+
+                  <div class="absolute hidden gap-1 group-hover:flex flex-col bg-white shadow-xl w-48 rounded-lg left-0 z-[60] border border-gray-100 overflow-hidden">
+                      <div v-for="(cat, index) in blogCategories" :key="cat.categoryID">
+                          <RouterLink :to="`/blog/${cat.slug}`" class="px-4 py-3 text-sm text-gray-700 hover:text-green-600 transition-colors">
+                              {{ cat.name }}
+                          </RouterLink>
+                          <hr v-if="index < blogCategories.length - 1" class="border-gray-50">
+                      </div>
+                  </div>
+              </div>
             </div>
             <div class="relative group">
                   <RouterLink to="/auth" class="flex items-center justify-center w-10 h-10 " :class="isHomePage ? 'text-white': 'text-black'">

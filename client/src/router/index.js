@@ -12,9 +12,9 @@ const router = createRouter({
       meta: { title: 'Trang chủ' }
     },
     {
-      path: '/tin-tuc',
-      name: 'news',
-      component: () => import('../views/News.vue'),
+      path: '/blog',
+      name: 'blog',
+      component: () => import('../views/Blog.vue'),
       meta: { title: 'Travel Map' }
     },
     {
@@ -74,8 +74,26 @@ const router = createRouter({
           name: 'contact-management',
           component: () => import('../views/Admin/ContactManagement.vue'),
           meta: { title: 'Quản lý liên hệ' }
-        }
+        },
+        {
+          path: 'blog-management',
+          name: 'blog-mamagement',
+          component: () => import('../views/Admin/BlogManagement.vue'),
+          meta: {title: 'Quản lý Blog'}
+        },
       ]
+    },
+    {
+      path: '/blog/:slug',
+      name: 'blogSlug',
+      component: () => import('../views/Blog.vue'),
+      meta: { title: 'Danh mục Blog' }
+    },
+    {
+      path: '/baiviet/:slug',
+      name: 'BlogDetail',
+      component: () => import('../components/BlogDetail.vue'),
+      meta: { title: 'Chi tiết bài viết' }
     },
     {
       path: '/auth',

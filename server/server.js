@@ -11,6 +11,8 @@ import accessLogRoutes from "./src/routes/accessLogRoutes.js"
 import reviewRoutes from "./src/routes/reviewRoutes.js"
 import locationDetailRoutes from "./src/routes/locationDetailsRoutes.js"
 import contactRoutes from "./src/routes/contactRoutes.js"
+import blogCategoryRoutes from "./src/routes/blogCategoryRoutes.js"
+import blogRoutes from "./src/routes/blogRoutes.js"
 
 const app = express()
 app.use(cors())
@@ -25,6 +27,8 @@ app.use('/api/access-log', accessLogRoutes)
 app.use('/api/review', reviewRoutes)
 app.use('/api/location-detail', locationDetailRoutes)
 app.use('/api/contact', contactRoutes)
+app.use('/api/blog-category', blogCategoryRoutes)
+app.use('/api/blog', blogRoutes)
 
 await createRootAccount();
 

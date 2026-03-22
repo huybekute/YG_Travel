@@ -37,6 +37,8 @@
                         <i class="fa-solid fa-table-cells pr-3"></i>Quản lý người dùng</RouterLink>
                     <RouterLink to ="/admin/content-management" class=" px-5 py-3" active-class="bg-blue-600">
                         <i class="fa-solid fa-table-cells pr-3"></i>Quản lý địa điểm</RouterLink>
+                    <RouterLink to ="/admin/blog-management" class=" px-5 py-3" active-class="bg-blue-600">
+                        <i class="fa-solid fa-table-cells pr-3"></i>Quản lý Blog</RouterLink>
                     <RouterLink to ="/admin/contact-management" class=" px-5 py-3" active-class="bg-blue-600">
                         <i class="fa-solid fa-envelope pr-3"></i>Liên hệ</RouterLink>
                 </div>
